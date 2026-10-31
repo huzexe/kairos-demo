@@ -13,7 +13,7 @@ pytestmark = pytest.mark.django_db
 
 
 def test_convert_lead_creates_client_and_contact(make_lead, package, owner):
-    lead = make_lead("Ayesha Khan", company="Glow Skincare", stage="proposal",
+    lead = make_lead("Matthew Murdock", company="Glow Skincare", stage="proposal",
                      phone="0300", email="a@glow.pk", instagram="glow.skin", estimated_value=80000)
     client = services.convert_lead(lead, Client(company="Glow Skincare", currency="PKR", package=package,
                                                 monthly_fee=80000), user=owner)
@@ -22,7 +22,7 @@ def test_convert_lead_creates_client_and_contact(make_lead, package, owner):
     assert StageChange.objects.filter(lead=lead, to_stage="won").exists()
     assert client.lead == lead and client.instagram == "glow.skin"
     contact = client.contacts.get()
-    assert (contact.name, contact.phone, contact.email, contact.is_primary) == ("Ayesha Khan", "0300", "a@glow.pk", True)
+    assert (contact.name, contact.phone, contact.email, contact.is_primary) == ("Matthew Murdock", "0300", "a@glow.pk", True)
 
 
 def test_cannot_convert_twice(make_lead):
@@ -44,7 +44,7 @@ def test_converted_lead_stays_won_and_cannot_be_deleted(client_in, make_lead):
 
 
 def test_convert_page_prefills_and_creates(client_in, make_lead, package):
-    lead = make_lead("Bilal", company="Urban Bites", stage="won", estimated_value=120000)
+    lead = make_lead("Matthew Murdock", company="Urban Bites", stage="won", estimated_value=120000)
     res = client_in.get(f"/clients/from-lead/{lead.pk}/")
     form = res.context["form"]
     assert form["company"].value() == "Urban Bites" and str(form["monthly_fee"].value()) == "120000.00"
@@ -77,7 +77,7 @@ def test_client_timeline_includes_lead_history(client_in, make_lead, owner):
 def test_create_client_directly_with_contact(client_in):
     res = client_in.post("/clients/new/", {
         "company": "Velvet Bridal", "currency": "USD", "start_date": "2026-10-01",
-        "contact-name": "Hina", "contact-phone": "0311",
+        "contact-name": "Matthew Murdock", "contact-phone": "0311",
     })
     client = Client.objects.get()
     assert res.url == client.get_absolute_url()

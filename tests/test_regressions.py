@@ -89,7 +89,7 @@ def test_pdf_handles_non_latin_names(client_in, make_client):
     from apps.clients.models import Contact
     from apps.invoices.models import Invoice, InvoiceLine
     c = make_client("مہک بیوٹی سیلون", address="Şişli, İstanbul · Łódź · Hà Nội")
-    Contact.objects.create(client=c, name="Ayşe Łukasz", is_primary=True)
+    Contact.objects.create(client=c, name="Matthew Murdock", is_primary=True)
     inv = Invoice.objects.create(number="INV-0009", client=c, currency="PKR", due_date=timezone.localdate())
     InvoiceLine.objects.create(invoice=inv, description="ماہانہ پیکیج — Growth", unit_price=100)
     pdf = client_in.get(f"/invoices/{inv.pk}/pdf/").content

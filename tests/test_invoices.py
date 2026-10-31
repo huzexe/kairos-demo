@@ -175,7 +175,7 @@ def test_delete_unpaid(client_in, make_client):
 def test_pdf(client_in, make_client):
     from apps.clients.models import Contact
     c = make_client("Glow <Skincare> & Co", address="12 Main Blvd\nLahore")
-    Contact.objects.create(client=c, name="Ayesha", email="a@glow.pk", is_primary=True)
+    Contact.objects.create(client=c, name="Matthew Murdock", email="a@glow.pk", is_primary=True)
     agency = AgencySettings.load()
     agency.payment_details = "Bank: Meezan\nIBAN: PK00"
     agency.save()

@@ -24,11 +24,11 @@ def test_first_run_sends_everything_to_setup(client):
 def test_setup_creates_owner_and_agency(client):
     res = client.post("/setup/", {
         "agency_name": "Pixel & Co", "default_currency": "USD", "timezone": "Asia/Karachi",
-        "username": "sara", "email": "", "password1": "Brand-new-pass-9", "password2": "Brand-new-pass-9",
+        "username": "matthew", "email": "", "password1": "Brand-new-pass-9", "password2": "Brand-new-pass-9",
     })
     assert res.status_code == 302
     user = get_user_model().objects.get()
-    assert user.username == "sara" and user.is_superuser
+    assert user.username == "matthew" and user.is_superuser
     assert user.password.startswith("pbkdf2_")  # stored hashed, never plain
     agency = AgencySettings.load()
     assert (agency.name, agency.default_currency, agency.timezone) == ("Pixel & Co", "USD", "Asia/Karachi")
@@ -38,7 +38,7 @@ def test_setup_creates_owner_and_agency(client):
 def test_setup_rejects_weak_password(client):
     res = client.post("/setup/", {
         "agency_name": "A", "default_currency": "USD", "timezone": "UTC",
-        "username": "sara", "password1": "12345678", "password2": "12345678",
+        "username": "matthew", "password1": "12345678", "password2": "12345678",
     })
     assert res.status_code == 200
     assert not get_user_model().objects.exists()
@@ -74,8 +74,8 @@ def test_wrong_password_shows_error(client, owner):
 # ---- Pipeline pages ----------------------------------------------------------
 
 def test_board_shows_columns_and_totals(client_in, make_lead):
-    make_lead("Ali", company="Bake House", estimated_value=50000)
-    make_lead("Sam", estimated_value=1500, currency="USD")
+    make_lead("Matthew Murdock", company="Bake House", estimated_value=50000)
+    make_lead("Matthew Murdock", estimated_value=1500, currency="USD")
     res = client_in.get("/pipeline/")
     html = res.content.decode()
     for label in ["New Lead", "Discovery Call", "Proposal Sent", "Follow-up", "Won", "Lost"]:
@@ -108,7 +108,7 @@ def test_board_filters(client_in, make_lead):
 
 def test_create_lead(client_in, source):
     res = client_in.post("/pipeline/leads/new/", {
-        "name": "Ayesha", "company": "Glow Skincare", "source": source.pk, "temperature": "hot",
+        "name": "Matthew Murdock", "company": "Glow Skincare", "source": source.pk, "temperature": "hot",
         "stage": "discovery", "estimated_value": "75000", "currency": "PKR", "instagram": "@glow.skin",
     })
     lead = Lead.objects.get()

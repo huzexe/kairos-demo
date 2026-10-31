@@ -28,7 +28,7 @@ def test_log_activity_with_follow_up(client_in, make_lead):
     when = timezone.localtime().strftime("%Y-%m-%dT%H:%M")
     due = (timezone.localdate() + timedelta(days=3)).isoformat()
     res = client_in.post(f"/activity/lead/{lead.pk}/log/", {
-        "kind": "call", "channel": "whatsapp", "contact_name": "Ali", "occurred_at": when,
+        "kind": "call", "channel": "whatsapp", "contact_name": "Matthew Murdock", "occurred_at": when,
         "summary": "Talked about the Growth package", "follow_up_date": due, "follow_up_note": "",
     })
     assert res.url == f"{lead.get_absolute_url()}#timeline"
