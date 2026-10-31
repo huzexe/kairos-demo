@@ -107,7 +107,14 @@ tests/                Automated tests (pytest)
 start.py              Cross-platform launcher
 ```
 
-## Credits
+## License
+
+Kairos Demo is licensed under the [PolyForm Internal Use License 1.0.0](LICENSE.md). In short:
+
+- **Allowed:** download it and use it, free of charge, to run your own agency's business. You may also change it for that purpose.
+- **Not allowed:** selling it, redistributing it, or offering it to others as a product or service.
+
+Bundled third-party parts keep their own licenses:
 
 - [SortableJS](https://github.com/SortableJS/Sortable): MIT License
-- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans): SIL Open Font License 1.1
+- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans): SIL Open Font License 1.1 (see `static/fonts/OFL.txt`)
