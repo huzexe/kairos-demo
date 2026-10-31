@@ -1,0 +1,44 @@
+{% load kairos %}
+{# Filters shared by the board and list views. #}
+<form class="toolbar" method="get" role="search">
+  <label class="search">
+    <span class="sr-only">Search leads</span>
+    <svg class="icon"><use href="#i-search"/></svg>
+    <input class="input" type="search" name="q" value="{{ filters.q }}" placeholder="Search name, company, phone…">
+  </label>
+  <select class="input" name="source" data-autosubmit aria-label="Lead source">
+    <option value="">All sources</option>
+    {% for s in sources %}<option value="{{ s.pk }}"{% if filters.source == s.pk|stringformat:"s" %} selected{% endif %}>{{ s.name }}</option>{% endfor %}
+  </select>
+  <select class="input" name="temperature" data-autosubmit aria-label="Hot or cold">
+    <option value="">Hot &amp; cold</option>
+    {% for value, label in temperatures %}<option value="{{ value }}"{% if filters.temperature == value %} selected{% endif %}>{{ label }} only</option>{% endfor %}
+  </select>
+  {% if view == "board" %}
+  <select class="input" name="closed" data-autosubmit aria-label="Won and lost leads shown">
+    <option value="30"{% if filters.closed == "30" %} selected{% endif %}>Closed: 30 days</option>
+    <option value="90"{% if filters.closed == "90" %} selected{% endif %}>Closed: 90 days</option>
+    <option value="all"{% if filters.closed == "all" %} selected{% endif %}>Closed: all time</option>
+  </select>
+  {% else %}
+  <select class="input" name="stage" data-autosubmit aria-label="Stage">
+    <option value="">All stages</option>
+    {% for value, label in stages %}<option value="{{ value }}"{% if stage_filter == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  {% endif %}
+  {% if filters.junk %}<input type="hidden" name="junk" value="1">{% endif %}
+  <noscript><button class="btn btn-sm" type="submit">Apply</button></noscript>
+  <span class="spacer"></span>
+  {% if filters.junk %}
+    <a class="junk-link" href="{% if view == 'board' %}{% url 'pipeline:board' %}{% else %}{% url 'pipeline:list' %}{% endif %}"><svg class="icon"><use href="#i-arrow-left"/></svg> Back to leads</a>
+  {% else %}
+    <a class="junk-link" href="{% query_with junk=1 page='' %}"><svg class="icon"><use href="#i-ban"/></svg> Junk ({{ junk_count }})</a>
+  {% endif %}
+  <div class="view-switch" role="group" aria-label="View">
+    <a href="{% url 'pipeline:board' %}{% query_with stage='' page='' %}" class="{% if view == 'board' %}is-active{% endif %}"><svg class="icon"><use href="#i-kanban"/></svg><span class="hide-sm">Board</span></a>
+    <a href="{% url 'pipeline:list' %}{% query_with closed='' %}" class="{% if view == 'list' %}is-active{% endif %}"><svg class="icon"><use href="#i-list"/></svg><span class="hide-sm">List</span></a>
+  </div>
+</form>
+{% if filters.junk %}
+<div class="filter-note"><svg class="icon"><use href="#i-ban"/></svg> You’re looking at junk leads. They’re hidden everywhere else. Restore one to bring it back.</div>
+{% endif %}

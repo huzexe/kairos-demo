@@ -1,0 +1,30 @@
+{% extends "core/settings_base.html" %}
+{% block settings %}
+<form method="post" class="card" novalidate>
+  {% csrf_token %}
+  <div class="card-head"><div><h2>Your account</h2><p>Your name and how you sign in.</p></div></div>
+  <div class="card-body">
+    {% include "includes/form_errors.html" with form=account_form %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=account_form.first_name %}
+      {% include "includes/field.html" with field=account_form.last_name %}
+      {% include "includes/field.html" with field=account_form.username %}
+      {% include "includes/field.html" with field=account_form.email %}
+    </div>
+  </div>
+  <div class="form-actions"><button class="btn btn-primary" type="submit" name="save_account">Save changes</button></div>
+</form>
+
+<form method="post" class="card" novalidate>
+  {% csrf_token %}
+  <div class="card-head"><div><h2>Password</h2><p>You’ll stay signed in on this computer after changing it.</p></div></div>
+  <div class="card-body">
+    <div class="form-grid">
+      {% include "includes/field.html" with field=password_form.current_password span=1 %}
+      {% include "includes/field.html" with field=password_form.new_password %}
+      {% include "includes/field.html" with field=password_form.confirm_password %}
+    </div>
+  </div>
+  <div class="form-actions"><button class="btn btn-primary" type="submit" name="change_password">Change password</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block heading %}Settings{% endblock %}
+{% block content %}
+<div class="settings">
+  <nav class="subnav" aria-label="Settings sections">
+    <a href="{% url 'settings_agency' %}" class="{% if tab == 'agency' %}is-active{% endif %}">Agency</a>
+    <a href="{% url 'settings_list' 'lead-sources' %}" class="{% if tab == 'sources' %}is-active{% endif %}">Lead sources</a>
+    <a href="{% url 'settings_list' 'lost-reasons' %}" class="{% if tab == 'reasons' %}is-active{% endif %}">Lost reasons</a>
+    <a href="{% url 'settings_account' %}" class="{% if tab == 'account' %}is-active{% endif %}">Your account</a>
+  </nav>
+  <div>{% block settings %}{% endblock %}</div>
+</div>
+{% endblock %}

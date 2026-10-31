@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=9,<10
+pytest-django>=4.14,<5
+# Only for taking screenshots / browser checks; uses your installed Chrome.
+playwright>=1.64,<2

@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Kairos data: database, secret key, uploads. Never commit.
+data/
+
+# Editors & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

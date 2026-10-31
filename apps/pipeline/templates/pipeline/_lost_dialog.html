@@ -1,0 +1,23 @@
+{# Asks why a lead was lost. Used by the board (JavaScript) and the lead page. #}
+<dialog class="modal" id="lost-dialog">
+  <form method="post" id="lost-form"{% if lead %} action="{% url 'pipeline:lead_move' lead.pk %}"{% endif %}>
+    {% csrf_token %}
+    <input type="hidden" name="stage" value="lost">
+    <div class="modal-head"><h2>Why was this lead lost?</h2><p>This helps you spot why deals fall through.</p></div>
+    <div class="modal-body">
+      <div class="reason-list">
+        {% for r in lost_reasons %}
+        <label><input type="radio" name="lost_reason" value="{{ r.pk }}" required> {{ r.name }}</label>
+        {% empty %}
+        <p class="muted">No lost reasons yet. Add some in Settings → Lost reasons.</p>
+        {% endfor %}
+      </div>
+      <div class="field"><label for="lost-note">Note <span class="optional">(optional)</span></label>
+        <input type="text" id="lost-note" name="lost_note" maxlength="300" placeholder="e.g. Budget was half our starter package"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" type="button" value="cancel" data-cancel>Cancel</button>
+      <button class="btn btn-danger-solid" type="submit">Mark as lost</button>
+    </div>
+  </form>
+</dialog>

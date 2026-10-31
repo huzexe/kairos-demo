@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}{{ lead.display_title }}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'pipeline:board' %}">Pipeline</a></span>{% endblock %}
+{% block heading %}{{ lead.display_title }}{% endblock %}
+{% block actions %}
+  <a class="btn" href="{% url 'pipeline:lead_edit' lead.pk %}"><svg class="icon"><use href="#i-pencil"/></svg><span class="label">Edit</span></a>
+{% endblock %}
+{% block content %}
+<div class="detail">
+  <div>
+    <section class="card">
+      <div class="detail-hero">
+        <div class="avatar-lg">{{ lead.display_title|first|upper }}</div>
+        <div style="min-width:0">
+          <h2>{{ lead.display_title }}</h2>
+          {% if lead.company %}<div class="muted">{{ lead.name }}</div>{% endif %}
+          <div class="tags">
+            <span class="stage-badge tag" data-stage="{{ lead.stage }}"><span class="dot"></span>{{ lead.get_stage_display }}</span>
+            <span class="tag tag-{{ lead.temperature }}"><span class="dot"></span>{{ lead.get_temperature_display }}</span>
+            <span class="tag"><svg class="icon" style="width:13px;height:13px"><use href="#i-tag"/></svg>{{ lead.source.name }}</span>
+            {% if lead.is_junk %}<span class="tag tag-junk"><svg class="icon" style="width:13px;height:13px"><use href="#i-ban"/></svg>Junk</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <dl class="facts">
+        <div class="fact"><dt>Estimated value</dt><dd>{% if lead.estimated_value %}{{ lead.estimated_value|money:lead.currency }} / month{% else %}<span class="muted">Not set</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Currency</dt><dd>{{ lead.get_currency_display }}</dd></div>
+        <div class="fact"><dt>Phone</dt><dd>{% if lead.phone %}<a href="tel:{{ lead.phone }}">{{ lead.phone }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Email</dt><dd>{% if lead.email %}<a href="mailto:{{ lead.email }}">{{ lead.email }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Instagram</dt><dd>{% if lead.instagram %}<a href="https://instagram.com/{{ lead.instagram }}" target="_blank" rel="noopener noreferrer">@{{ lead.instagram }}</a>{% else %}<span class="muted">—</span>{% endif %}</dd></div>
+        <div class="fact"><dt>Added</dt><dd>{{ lead.created_at|date:"j M Y, H:i" }}</dd></div>
+        {% if lead.stage == "lost" %}
+        <div class="fact"><dt>Lost reason</dt><dd>{{ lead.lost_reason.name|default:"—" }}</dd></div>
+        <div class="fact"><dt>Lost note</dt><dd>{{ lead.lost_note|default:"—" }}</dd></div>
+        {% endif %}
+      </dl>
+      {% if lead.notes %}<div class="card-body" style="border-top:1px solid var(--border)"><h3 style="margin-bottom:6px">Notes</h3><div class="notes-text">{{ lead.notes }}</div></div>{% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card-head"><h2>Stage history</h2></div>
+      <ul class="history">
+        {% for change in history %}
+        <li data-stage="{{ change.to_stage }}" style="--stage-color:var(--st-{{ change.to_stage }})">
+          <strong>{% if change.from_stage %}{{ change.get_from_stage_display }} → {% else %}Added in {% endif %}{{ change.get_to_stage_display }}</strong>
+          {% if change.lost_reason %}<span class="muted"> · {{ change.lost_reason.name }}</span>{% endif %}
+          <div class="when">{{ change.changed_at|date:"j M Y, H:i" }}{% if change.changed_by %} · {{ change.changed_by.get_full_name|default:change.changed_by.username }}{% endif %}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  <aside>
+    <section class="card">
+      <div class="card-head"><div><h2>Stage</h2><p>{% if lead.days_in_stage %}{{ lead.days_in_stage }} day{{ lead.days_in_stage|pluralize }} in {{ lead.get_stage_display }}{% else %}In {{ lead.get_stage_display }} since today{% endif %}</p></div></div>
+      <div class="card-body">
+        <div class="stage-track{% if lead.stage == 'lost' %} is-lost{% endif %}" aria-hidden="true">
+          {% for value, label in stages %}{% if value != "lost" %}<span class="{% if forloop.counter0 <= stage_index %}is-done{% endif %}" title="{{ label }}"></span>{% endif %}{% endfor %}
+        </div>
+        <form method="post" action="{% url 'pipeline:lead_move' lead.pk %}" id="move-form" style="display:grid;gap:10px">
+          {% csrf_token %}
+          <div class="field"><label for="move-stage">Move to</label>
+            <select id="move-stage" name="stage">
+              {% for value, label in stages %}<option value="{{ value }}"{% if value == lead.stage %} selected{% endif %}>{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Move lead</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="card danger-zone">
+      <div class="card-body" style="display:grid;gap:10px">
+        {% if lead.is_junk %}
+        <form method="post" action="{% url 'pipeline:lead_junk' lead.pk %}">{% csrf_token %}<input type="hidden" name="junk" value="0">
+          <button class="btn btn-block" type="submit"><svg class="icon"><use href="#i-restore"/></svg> Restore from junk</button></form>
+        {% elif lead.stage != "won" %}
+        <form method="post" action="{% url 'pipeline:lead_junk' lead.pk %}">{% csrf_token %}<input type="hidden" name="junk" value="1">
+          <button class="btn btn-block" type="submit"><svg class="icon"><use href="#i-ban"/></svg> Mark as junk</button></form>
+        {% endif %}
+        <form method="post" action="{% url 'pipeline:lead_delete' lead.pk %}" data-confirm="Delete {{ lead.display_title }} for good? This can’t be undone.">{% csrf_token %}
+          <button class="btn btn-danger btn-block" type="submit"><svg class="icon"><use href="#i-trash"/></svg> Delete lead</button></form>
+      </div>
+    </section>
+  </aside>
+</div>
+{% include "pipeline/_lost_dialog.html" %}
+{% endblock %}
+{% block scripts %}
+<script>
+  // Moving to Lost asks for the reason first.
+  (function () {
+    const form = document.getElementById("move-form");
+    const dialog = document.getElementById("lost-dialog");
+    form.addEventListener("submit", (e) => {
+      if (form.stage.value === "lost" && "{{ lead.stage }}" !== "lost") {
+        e.preventDefault();
+        dialog.showModal();
+      }
+    });
+    dialog.querySelector("[data-cancel]").addEventListener("click", () => dialog.close());
+  })();
+</script>
+{% endblock %}

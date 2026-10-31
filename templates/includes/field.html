@@ -1,0 +1,14 @@
+{# Renders one form field: {% include "includes/field.html" with field=form.name %} #}
+<div class="field{% if field.errors %} has-error{% endif %}{% if span %} span-2{% endif %}">
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="check">{{ field }} {{ field.label }}</label>
+  {% elif field.field.widget.input_type == "radio" %}
+    <span class="label">{{ field.label }}</span>
+    <div class="segmented">{% for radio in field %}<label>{{ radio.tag }}{{ radio.choice_label }}</label>{% endfor %}</div>
+  {% else %}
+    <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="optional">(optional)</span>{% endif %}</label>
+    {{ field }}
+  {% endif %}
+  {% if field.help_text %}<div class="help">{{ field.help_text }}</div>{% endif %}
+  {% if field.errors %}<ul class="errors">{% for e in field.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+</div>

@@ -1,0 +1,32 @@
+{% extends "auth_base.html" %}
+{% block title %}Set up Kairos{% endblock %}
+{% block content %}
+<h1>Set up your workspace</h1>
+<p class="lead">This takes a minute. You’ll be the owner, with full access.</p>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include "includes/form_errors.html" %}
+  <div class="section-label">Your agency</div>
+  {% include "includes/field.html" with field=form.agency_name %}
+  {% include "includes/field.html" with field=form.default_currency %}
+  {% include "includes/field.html" with field=form.timezone %}
+  <div class="section-label">Your sign-in</div>
+  {% include "includes/field.html" with field=form.username %}
+  {% include "includes/field.html" with field=form.email %}
+  {% include "includes/field.html" with field=form.password1 %}
+  {% include "includes/field.html" with field=form.password2 %}
+  <button class="btn btn-primary btn-block" type="submit">Create workspace</button>
+</form>
+{% endblock %}
+{% block scripts %}
+{% if not form.is_bound %}
+<script>
+  // Pre-select this computer's time zone.
+  (function () {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const select = document.getElementById("id_timezone");
+    if (tz && select && [...select.options].some((o) => o.value === tz)) select.value = tz;
+  })();
+</script>
+{% endif %}
+{% endblock %}

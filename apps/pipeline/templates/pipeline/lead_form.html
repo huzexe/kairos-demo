@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}New lead{% else %}Edit {{ lead.display_title }}{% endif %}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'pipeline:board' %}">Pipeline</a>{% if lead %} / <a href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a>{% endif %}</span>{% endblock %}
+{% block heading %}{% if is_new %}New lead{% else %}Edit lead{% endif %}{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:860px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=form.company %}
+      {% include "includes/field.html" with field=form.name %}
+      {% include "includes/field.html" with field=form.phone %}
+      {% include "includes/field.html" with field=form.email %}
+      {% include "includes/field.html" with field=form.instagram %}
+      {% include "includes/field.html" with field=form.source %}
+      {% include "includes/field.html" with field=form.temperature %}
+      {% if form.stage %}{% include "includes/field.html" with field=form.stage %}{% endif %}
+      {% include "includes/field.html" with field=form.estimated_value %}
+      {% include "includes/field.html" with field=form.currency %}
+      {% if form.lost_reason %}
+      <div class="span-2 form-grid" data-lost-fields>
+        {% include "includes/field.html" with field=form.lost_reason %}
+        {% include "includes/field.html" with field=form.lost_note %}
+      </div>
+      {% endif %}
+      {% include "includes/field.html" with field=form.notes span=1 %}
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{% if lead %}{{ lead.get_absolute_url }}{% else %}{% url 'pipeline:board' %}{% endif %}">Cancel</a>
+    <span class="spacer"></span>
+    {% if is_new %}<button class="btn" type="submit" name="add_another">Save &amp; add another</button>{% endif %}
+    <button class="btn btn-primary" type="submit">{% if is_new %}Add lead{% else %}Save changes{% endif %}</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  // Show the lost reason fields only when the stage is Lost.
+  (function () {
+    const stage = document.getElementById("id_stage");
+    const lost = document.querySelector("[data-lost-fields]");
+    if (!stage || !lost) return;
+    const sync = () => { lost.hidden = stage.value !== "lost"; };
+    stage.addEventListener("change", sync);
+    sync();
+  })();
+</script>
+{% endblock %}

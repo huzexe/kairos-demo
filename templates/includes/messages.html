@@ -1,0 +1,9 @@
+<div class="toasts" id="toasts" aria-live="polite">
+  {% for message in messages %}
+  <div class="toast {{ message.tags }}" role="status">
+    <svg class="icon"><use href="#i-{% if message.level_tag == 'error' %}alert{% else %}check-circle{% endif %}"/></svg>
+    <span>{{ message }}</span>
+    <button type="button" data-dismiss aria-label="Dismiss">&times;</button>
+  </div>
+  {% endfor %}
+</div>

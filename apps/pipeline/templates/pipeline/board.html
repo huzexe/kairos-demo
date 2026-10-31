@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static kairos %}
+{% block title %}Pipeline{% endblock %}
+{% block heading %}Pipeline{% endblock %}
+{% block content_class %} is-wide{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
+{% endblock %}
+{% block content %}
+<div style="padding-right:28px">{% include "pipeline/_toolbar.html" %}</div>
+
+<div class="board" id="board" data-move-url="{% url 'pipeline:lead_move' 0 %}" {% if filters.junk %}data-readonly{% endif %}>
+  {% for col in columns %}
+  <section class="column" data-stage="{{ col.stage }}" aria-label="{{ col.label }}">
+    <header class="column-head">
+      <div class="column-title">
+        <span class="dot" style="background:var(--stage-color)"></span>
+        <h2>{{ col.label }}</h2>
+        <span class="count" data-count>{{ col.leads|length }}</span>
+        {% if not filters.junk %}<a class="add" href="{% url 'pipeline:lead_create' %}?stage={{ col.stage }}" title="Add a lead to {{ col.label }}" aria-label="Add a lead to {{ col.label }}"><svg class="icon"><use href="#i-plus"/></svg></a>{% endif %}
+      </div>
+      <div class="column-total" data-total>{{ col.totals|totals }}</div>
+    </header>
+    <div class="cards" data-stage="{{ col.stage }}">{% for lead in col.leads %}{% include "pipeline/_card.html" %}{% endfor %}</div>
+  </section>
+  {% endfor %}
+</div>
+
+{% include "pipeline/_lost_dialog.html" %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/Sortable.min.js' %}"></script>
+<script src="{% static 'js/board.js' %}"></script>
+{% endblock %}

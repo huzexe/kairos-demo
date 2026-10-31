@@ -1,0 +1,29 @@
+{% load kairos %}
+<article class="lead-card" data-id="{{ lead.pk }}" data-value="{{ lead.estimated_value|default:'' }}" data-currency="{{ lead.currency }}">
+  <a class="title" href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a>
+  {% if lead.company %}<div class="sub">{{ lead.name }}</div>{% endif %}
+  <div class="tags">
+    <span class="tag tag-{{ lead.temperature }}"><span class="dot"></span>{{ lead.get_temperature_display }}</span>
+    <span class="tag">{{ lead.source.name }}</span>
+  </div>
+  {% if lead.stage == "lost" and lead.lost_reason %}<div class="lost-why">{{ lead.lost_reason.name }}</div>{% endif %}
+  <div class="foot">
+    <span class="value">{% if lead.estimated_value %}{{ lead.estimated_value|money:lead.currency }}<span class="muted">/mo</span>{% else %}<span class="muted">No value</span>{% endif %}</span>
+    {% with days=lead.days_in_stage %}
+    <span class="age{% if lead.is_open and days >= 14 %} is-stale{% endif %}" title="Days in this stage">
+      <svg class="icon"><use href="#i-clock"/></svg>{% if days == 0 %}Today{% else %}{{ days }}d{% endif %}
+    </span>
+    {% endwith %}
+  </div>
+  {% if not lead.is_junk and lead.stage != "won" %}
+  <form method="post" action="{% url 'pipeline:lead_junk' lead.pk %}">
+    {% csrf_token %}<input type="hidden" name="junk" value="1"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button class="junk-btn" type="submit" title="Mark as junk" aria-label="Mark {{ lead.display_title }} as junk"><svg class="icon"><use href="#i-ban"/></svg></button>
+  </form>
+  {% elif lead.is_junk %}
+  <form method="post" action="{% url 'pipeline:lead_junk' lead.pk %}">
+    {% csrf_token %}<input type="hidden" name="junk" value="0"><input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button class="junk-btn" type="submit" title="Restore" aria-label="Restore {{ lead.display_title }}"><svg class="icon"><use href="#i-restore"/></svg></button>
+  </form>
+  {% endif %}
+</article>

@@ -1,0 +1,20 @@
+{% extends "core/settings_base.html" %}
+{% block settings %}
+<form method="post" class="card" novalidate>
+  {% csrf_token %}
+  <div class="card-head"><div><h2>Agency details</h2><p>Shown on invoices and reports.</p></div></div>
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=form.name span=1 %}
+      {% include "includes/field.html" with field=form.email %}
+      {% include "includes/field.html" with field=form.phone %}
+      {% include "includes/field.html" with field=form.website %}
+      {% include "includes/field.html" with field=form.address span=1 %}
+      {% include "includes/field.html" with field=form.default_currency %}
+      {% include "includes/field.html" with field=form.timezone %}
+    </div>
+  </div>
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Save changes</button></div>
+</form>
+{% endblock %}

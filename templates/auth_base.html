@@ -1,0 +1,33 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sign in{% endblock %} · Kairos</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/kairos.css' %}">
+</head>
+<body>
+{% include "includes/icons.html" %}
+<div class="auth">
+  <section class="auth-side">
+    <div class="glow"></div>
+    <div class="brand">{% include "includes/logo.html" %}<span class="brand-name">Kairos</span></div>
+    <div>
+      <h2>Every lead and client your agency handles, in one calm place.</h2>
+      <p>Built for marketing agencies: from the first DM to the signed deal.</p>
+      <ul class="auth-points">
+        <li><svg class="icon"><use href="#i-check-circle"/></svg> Pipeline built around discovery calls and proposals</li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg> Junk leads filtered out in one click</li>
+        <li><svg class="icon"><use href="#i-check-circle"/></svg> Runs on your own computer — your data stays with you</li>
+      </ul>
+    </div>
+    <span class="muted" style="color:#6f7b8b">Kairos</span>
+  </section>
+  <main class="auth-main"><div class="auth-box">{% block content %}{% endblock %}</div></main>
+</div>
+{% include "includes/messages.html" %}
+<script src="{% static 'js/kairos.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% load static kairos %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Kairos{% endblock %} · Kairos</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/kairos.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+{% include "includes/icons.html" %}
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main menu">
+    <a class="brand" href="{% url 'home' %}">
+      {% include "includes/logo.html" %}
+      <span><span class="brand-name">Kairos</span><span class="brand-agency">{{ agency.name }}</span></span>
+    </a>
+    <nav class="nav">
+      <div class="nav-label">Sales</div>
+      <a href="{% url 'pipeline:board' %}" class="{% nav_active '/pipeline/' %}">
+        <svg class="icon"><use href="#i-kanban"/></svg> Pipeline
+      </a>
+      <div class="nav-label">Workspace</div>
+      <a href="{% url 'settings_agency' %}" class="{% nav_active '/settings/' %}">
+        <svg class="icon"><use href="#i-settings"/></svg> Settings
+      </a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="user-chip">
+        <span class="avatar">{{ user.get_short_name|default:user.username|first|upper }}</span>
+        <span class="who"><strong>{{ user.get_full_name|default:user.username }}</strong><span>Owner</span></span>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+          <button type="submit" title="Sign out" aria-label="Sign out"><svg class="icon"><use href="#i-logout"/></svg></button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" data-close-nav></div>
+
+  <div class="main">
+    <header class="topbar" id="topbar">
+      <button class="btn btn-ghost btn-icon menu-btn" type="button" data-open-nav aria-label="Open menu"><svg class="icon"><use href="#i-menu"/></svg></button>
+      <h1>{% block crumb %}{% endblock %}{% block heading %}{% endblock %}</h1>
+      <div class="topbar-actions">{% block actions %}{% endblock %}</div>
+    </header>
+    <main class="content{% block content_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% include "includes/messages.html" %}
+<script src="{% static 'js/kairos.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
