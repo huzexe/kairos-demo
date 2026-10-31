@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}Dashboard{% endblock %}
+{% block heading %}{{ greeting }}{% if user.first_name %}, {{ user.first_name }}{% endif %}<span class="crumb crumb-below">{{ today|date:"l, j F" }} · {{ agency.name }}</span>{% endblock %}
+{% block actions %}
+  <a class="btn" href="{% url 'activity:follow_ups' %}"><svg class="icon"><use href="#i-bell"/></svg><span class="label">Follow-ups</span></a>
+  <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
+{% endblock %}
+{% block content %}
+{% if not has_anything %}
+<div class="card welcome">
+  <div class="card-body">
+    <h2>Welcome to Kairos</h2>
+    <p class="muted">Three steps to get going:</p>
+    <ol class="steps">
+      <li><a href="{% url 'clients:packages' %}">Set up your packages</a> <span class="muted">— what you sell each month</span></li>
+      <li><a href="{% url 'pipeline:lead_create' %}">Add your first lead</a> <span class="muted">— from Instagram, a referral or outreach</span></li>
+      <li><a href="{% url 'settings_invoices' %}">Add your payment details</a> <span class="muted">— printed on every invoice</span></li>
+    </ol>
+  </div>
+</div>
+{% endif %}
+
+<div class="stat-row">
+  <a class="stat" href="{% url 'pipeline:board' %}">
+    <div class="stat-label">Open pipeline</div>
+    <div class="stat-value">{{ pipeline_value|default:"—" }}</div>
+    <div class="stat-sub">{{ open_count }} open lead{{ open_count|pluralize }} · {{ hot_count }} hot</div>
+  </a>
+  <a class="stat" href="{% url 'pipeline:list' %}">
+    <div class="stat-label">New leads · 30 days</div>
+    <div class="stat-value">{{ new_30 }}</div>
+    <div class="stat-sub">{% if new_delta > 0 %}<span class="delta up">+{{ new_delta }}</span>{% elif new_delta < 0 %}<span class="delta down">{{ new_delta }}</span>{% else %}<span class="delta">±0</span>{% endif %} vs previous 30 days{% if junk_30 %} · {{ junk_30 }} junk{% endif %}</div>
+  </a>
+  <div class="stat">
+    <div class="stat-label">Win rate · 90 days</div>
+    <div class="stat-value">{% if win_rate is not None %}{{ win_rate }}%{% else %}—{% endif %}</div>
+    <div class="stat-sub">{{ won_90 }} won · {{ lost_90 }} lost</div>
+  </div>
+  <a class="stat" href="{% url 'clients:list' %}">
+    <div class="stat-label">Active clients</div>
+    <div class="stat-value">{{ active_count }}</div>
+    <div class="stat-sub">{% if monthly_value %}{{ monthly_value }} / month{% else %}No monthly fees set{% endif %}</div>
+  </a>
+  <a class="stat" href="{% url 'invoices:list' %}?status=unpaid">
+    <div class="stat-label">Unpaid invoices</div>
+    <div class="stat-value">{{ unpaid_value|default:"—" }}</div>
+    <div class="stat-sub">{% if overdue_count %}<span class="delta down">{{ overdue_count }} overdue</span>{% else %}{{ unpaid_count }} waiting{% endif %}</div>
+  </a>
+</div>
+
+<div class="dash-grid">
+  <section class="card">
+    <div class="card-head"><div><h2>Follow-ups due</h2><p>Overdue and today{% if upcoming_count %} · {{ upcoming_count }} more this week{% endif %}</p></div>
+      <a class="btn btn-sm" href="{% url 'activity:follow_ups' %}">All</a></div>
+    {% if due_follow_ups %}
+    <ul class="fu-list">
+      {% for f in due_follow_ups %}
+      <li class="fu-row{% if f.is_overdue %} is-overdue{% else %} is-today{% endif %}">
+        <form method="post" action="{% url 'activity:follow_up_done' f.pk %}">{% csrf_token %}<input type="hidden" name="done" value="1"><input type="hidden" name="next" value="/">
+          <button class="fu-check" type="submit" title="Mark as done" aria-label="Mark “{{ f.note }}” as done"><svg class="icon"><use href="#i-check"/></svg></button></form>
+        <div class="fu-text"><a href="{{ f.subject.get_absolute_url }}#follow-ups">{% if f.client_id %}{{ f.client.company }}{% else %}{{ f.lead.display_title }}{% endif %}</a>
+          <span class="fu-due">{{ f.note }} · {% if f.is_overdue %}{{ f.due_date|timesince }} late{% else %}today{% endif %}</span></div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if due_follow_ups_more %}<p class="card-foot-note muted">+ {{ due_follow_ups_more }} more</p>{% endif %}
+    {% else %}<p class="timeline-empty muted">Nothing due. Nice.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>Overdue invoices</h2><p>Past their due date and still unpaid</p></div>
+      <a class="btn btn-sm" href="{% url 'invoices:list' %}?status=overdue">All</a></div>
+    {% if overdue %}
+    <ul class="simple-list">
+      {% for inv in overdue %}
+      <li><a href="{{ inv.get_absolute_url }}"><strong>{{ inv.client.company }}</strong><span class="muted"> · {{ inv.number }}</span></a>
+        <span class="nowrap"><strong>{{ inv.total|money:inv.currency }}</strong> <span class="status status-overdue"><span class="dot"></span>{{ inv.days_overdue }}d</span></span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="timeline-empty muted">No overdue invoices.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>Leads by source</h2><p>Last 90 days, junk excluded</p></div></div>
+    {% if by_source %}
+    <ul class="rank" aria-label="Leads by source">
+      {% for r in by_source %}
+      <li title="{{ r.label }}: {{ r.count }} lead{{ r.count|pluralize }}"><span class="rank-label">{{ r.label }}</span>
+        <span class="rank-track"><span class="rank-bar" style="width:{{ r.pct }}%"></span></span><span class="rank-value">{{ r.count }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="timeline-empty muted">No leads in the last 90 days.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>Why deals were lost</h2><p>Last 90 days</p></div></div>
+    {% if lost_reasons %}
+    <ul class="rank rank-muted" aria-label="Lost reasons">
+      {% for r in lost_reasons %}
+      <li title="{{ r.label }}: {{ r.count }} lead{{ r.count|pluralize }}"><span class="rank-label">{{ r.label }}</span>
+        <span class="rank-track"><span class="rank-bar" style="width:{{ r.pct }}%"></span></span><span class="rank-value">{{ r.count }}</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="timeline-empty muted">No lost deals in the last 90 days.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>Pipeline by stage</h2><p>Open leads right now</p></div></div>
+    <ul class="stage-counts">
+      {% for value, label in stages %}
+      <li data-stage="{{ value }}"><a href="{% url 'pipeline:list' %}?stage={{ value }}"><span class="dot"></span>{{ label }}<strong>{{ stage_counts|get_item:value|default:0 }}</strong></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><div><h2>Gone quiet</h2><p>Active clients with no call, meeting or message in {{ quiet_days }}+ days</p></div></div>
+    {% if quiet %}
+    <ul class="simple-list">
+      {% for c in quiet %}
+      <li><a href="{{ c.get_absolute_url }}#timeline"><strong>{{ c.company }}</strong></a><span class="tag tag-warn">{{ c.days_quiet }} days</span></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="timeline-empty muted">Every active client has heard from you recently.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

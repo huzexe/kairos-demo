@@ -38,6 +38,9 @@
       {% if lead.notes %}<div class="card-body" style="border-top:1px solid var(--border)"><h3 style="margin-bottom:6px">Notes</h3><div class="notes-text">{{ lead.notes }}</div></div>{% endif %}
     </section>
 
+    {% url 'activity:activity_add' 'lead' lead.pk as add_url %}
+    {% include "activity/_timeline.html" with add_url=add_url %}
+
     <section class="card">
       <div class="card-head"><h2>Stage history</h2></div>
       <ul class="history">
@@ -53,6 +56,25 @@
   </div>
 
   <aside>
+    {% if client %}
+    <section class="card callout callout-ok">
+      <div class="card-body">
+        <h3>This lead is now a client</h3>
+        <p class="muted">Their profile, timeline and invoices live on the client page.</p>
+        <a class="btn btn-primary btn-block" href="{{ client.get_absolute_url }}">Open {{ client.company }} <svg class="icon"><use href="#i-arrow-right"/></svg></a>
+      </div>
+    </section>
+    {% elif lead.stage == "won" %}
+    <section class="card callout">
+      <div class="card-body">
+        <h3>Deal won!</h3>
+        <p class="muted">Turn {{ lead.display_title }} into a client to track their package, contacts and invoices.</p>
+        <a class="btn btn-primary btn-block" href="{% url 'clients:convert' lead.pk %}"><svg class="icon"><use href="#i-star"/></svg> Convert to client</a>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if not client %}
     <section class="card">
       <div class="card-head"><div><h2>Stage</h2><p>{% if lead.days_in_stage %}{{ lead.days_in_stage }} day{{ lead.days_in_stage|pluralize }} in {{ lead.get_stage_display }}{% else %}In {{ lead.get_stage_display }} since today{% endif %}</p></div></div>
       <div class="card-body">
@@ -70,7 +92,12 @@
         </form>
       </div>
     </section>
+    {% endif %}
 
+    {% url 'activity:follow_up_add' 'lead' lead.pk as follow_up_url %}
+    {% include "activity/_follow_ups_panel.html" with follow_up_url=follow_up_url %}
+
+    {% if not client %}
     <section class="card danger-zone">
       <div class="card-body" style="display:grid;gap:10px">
         {% if lead.is_junk %}
@@ -80,10 +107,11 @@
         <form method="post" action="{% url 'pipeline:lead_junk' lead.pk %}">{% csrf_token %}<input type="hidden" name="junk" value="1">
           <button class="btn btn-block" type="submit"><svg class="icon"><use href="#i-ban"/></svg> Mark as junk</button></form>
         {% endif %}
-        <form method="post" action="{% url 'pipeline:lead_delete' lead.pk %}" data-confirm="Delete {{ lead.display_title }} for good? This can’t be undone.">{% csrf_token %}
+        <form method="post" action="{% url 'pipeline:lead_delete' lead.pk %}" data-confirm="Delete {{ lead.display_title }} for good? Its timeline is deleted too. This can’t be undone.">{% csrf_token %}
           <button class="btn btn-danger btn-block" type="submit"><svg class="icon"><use href="#i-trash"/></svg> Delete lead</button></form>
       </div>
     </section>
+    {% endif %}
   </aside>
 </div>
 {% include "pipeline/_lost_dialog.html" %}

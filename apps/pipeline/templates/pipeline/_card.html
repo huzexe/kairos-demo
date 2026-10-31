@@ -6,6 +6,7 @@
     <span class="tag tag-{{ lead.temperature }}"><span class="dot"></span>{{ lead.get_temperature_display }}</span>
     <span class="tag">{{ lead.source.name }}</span>
   </div>
+  {% if lead.stage == "won" %}<div class="won-row">{% if lead.client %}<span class="tag tag-ok"><svg class="icon" style="width:12px;height:12px"><use href="#i-check"/></svg>Client</span>{% else %}<a class="won-convert" href="{% url 'clients:convert' lead.pk %}">Convert to client <svg class="icon"><use href="#i-arrow-right"/></svg></a>{% endif %}</div>{% endif %}
   {% if lead.stage == "lost" and lead.lost_reason %}<div class="lost-why">{{ lead.lost_reason.name }}</div>{% endif %}
   <div class="foot">
     <span class="value">{% if lead.estimated_value %}{{ lead.estimated_value|money:lead.currency }}<span class="muted">/mo</span>{% else %}<span class="muted">No value</span>{% endif %}</span>

@@ -1,0 +1,24 @@
+{{ package_data|json_script:"package-data" }}
+<script>
+  // When a package is picked, show what it includes and fill the monthly fee
+  // (only if the fee is empty and the currencies match).
+  (function () {
+    const data = JSON.parse(document.getElementById("package-data").textContent || "{}");
+    const pkg = document.getElementById("id_package");
+    const fee = document.getElementById("id_monthly_fee");
+    const cur = document.getElementById("id_currency");
+    const box = document.querySelector("[data-package-includes]");
+    if (!pkg) return;
+    function show(fill) {
+      const p = data[pkg.value];
+      box.textContent = p ? (p.summary || "Nothing listed") + " — " + p.currency + " " + Number(p.price).toLocaleString("en-US") + "/mo" : "—";
+      if (fill && p && fee && !fee.value && cur.value === p.currency) fee.value = p.price;
+      if (fill && p && cur && cur.value !== p.currency) {
+        box.textContent += " (different currency from this client — enter the fee yourself)";
+      }
+    }
+    pkg.addEventListener("change", () => show(true));
+    cur && cur.addEventListener("change", () => show(false));
+    show(false);
+  })();
+</script>

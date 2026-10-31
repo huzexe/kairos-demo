@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}New client{% else %}Edit {{ client.company }}{% endif %}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'clients:list' %}">Clients</a>{% if client %} / <a href="{{ client.get_absolute_url }}">{{ client.company }}</a>{% endif %}</span>{% endblock %}
+{% block heading %}{% if is_new %}New client{% else %}Edit client{% endif %}{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:860px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=form.company %}
+      {% include "includes/field.html" with field=form.industry %}
+      {% if form.status %}{% include "includes/field.html" with field=form.status %}{% endif %}
+      {% include "includes/field.html" with field=form.start_date %}
+      {% include "clients/_package_fields.html" %}
+      {% include "includes/field.html" with field=form.website %}
+      {% include "includes/field.html" with field=form.instagram %}
+      {% include "includes/field.html" with field=form.address span=1 %}
+      {% include "includes/field.html" with field=form.notes span=1 %}
+    </div>
+    {% if contact_form %}
+    <h3 class="form-section">Main contact <span class="optional muted">(optional)</span></h3>
+    <div class="form-grid">
+      {% include "includes/field.html" with field=contact_form.name %}
+      {% include "includes/field.html" with field=contact_form.role %}
+      {% include "includes/field.html" with field=contact_form.phone %}
+      {% include "includes/field.html" with field=contact_form.email %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{% if client %}{{ client.get_absolute_url }}{% else %}{% url 'clients:list' %}{% endif %}">Cancel</a>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" type="submit">{% if is_new %}Add client{% else %}Save changes{% endif %}</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}{% include "clients/_package_script.html" %}{% endblock %}

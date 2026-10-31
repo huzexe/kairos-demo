@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}Clients{% endblock %}
+{% block heading %}Clients{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{% url 'clients:create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New client</span></a>
+{% endblock %}
+{% block content %}
+<form class="toolbar" method="get" role="search">
+  <label class="search"><span class="sr-only">Search clients</span><svg class="icon"><use href="#i-search"/></svg>
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search client, contact, phone…"></label>
+  <div class="pills" role="group" aria-label="Status">
+    {% for value, label in statuses %}<a class="pill{% if status == value %} is-active{% endif %}" href="{% query_with status=value page='' %}">{{ label }}{% if value == 'active' %}s{% endif %} <span>{{ counts|get_item:value|default:0 }}</span></a>{% endfor %}
+    <a class="pill{% if status == 'all' %} is-active{% endif %}" href="{% query_with status='all' page='' %}">All</a>
+  </div>
+  <span class="spacer"></span>
+  {% if monthly_total %}<span class="muted nowrap">Active monthly: <strong style="color:var(--text)">{{ monthly_total }}</strong></span>{% endif %}
+</form>
+
+<div class="card">
+  {% if page.object_list %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Client</th><th class="hide-sm">Package</th><th>Monthly</th><th>Last contact</th><th class="hide-sm">Next follow-up</th></tr></thead>
+      <tbody>
+      {% for c in page.object_list %}
+        <tr>
+          <td class="title-cell"><a href="{{ c.get_absolute_url }}">{{ c.company }}</a>
+            <div class="sub">{% with p=c.primary_contact %}{% if p %}{{ p.name }}{% endif %}{% endwith %}{% if c.industry %}{% if c.primary_contact %} · {% endif %}{{ c.industry }}{% endif %}{% if c.status == 'former' %} · <span class="tag tag-junk tag-sm">Former</span>{% endif %}</div></td>
+          <td class="hide-sm">{% if c.package %}{{ c.package.name }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="nowrap">{% if c.monthly_fee is not None %}{{ c.monthly_fee|money:c.currency }}{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="nowrap">{% if c.days_since_contact is None %}<span class="muted">Never</span>{% elif c.days_since_contact == 0 %}Today{% elif c.days_since_contact >= 21 and c.status == 'active' %}<span class="tag tag-warn">{{ c.days_since_contact }} days ago</span>{% else %}{{ c.days_since_contact }} day{{ c.days_since_contact|pluralize }} ago{% endif %}</td>
+          <td class="hide-sm nowrap">{% if c.next_follow_up %}{{ c.next_follow_up|date:"D j M" }}{% else %}<span class="muted">None planned</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if page.has_other_pages %}
+  <div class="pagination"><span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    <span style="display:flex;gap:8px">{% if page.has_previous %}<a class="btn btn-sm" href="{% query_with page=page.previous_page_number %}">Previous</a>{% endif %}{% if page.has_next %}<a class="btn btn-sm" href="{% query_with page=page.next_page_number %}">Next</a>{% endif %}</span></div>
+  {% endif %}
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon"><svg class="icon"><use href="#i-users"/></svg></div>
+    {% if q %}<h2>No clients match “{{ q }}”</h2><p>Try another name or phone number.</p>
+    {% else %}<h2>No {% if status == 'former' %}former {% elif status == 'active' %}active {% endif %}clients yet</h2>
+    <p>Win a lead in the pipeline and convert it — or add a client directly.</p>
+    <a class="btn btn-primary" href="{% url 'clients:create' %}"><svg class="icon"><use href="#i-plus"/></svg> New client</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

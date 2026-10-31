@@ -1,6 +1,7 @@
 import zoneinfo
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
 from .currencies import CURRENCY_CHOICES, DEFAULT_CURRENCY
@@ -26,6 +27,25 @@ class AgencySettings(models.Model):
     timezone = models.CharField(
         "time zone", max_length=64, default="UTC", validators=[validate_timezone],
     )
+
+    # Invoices
+    invoice_prefix = models.CharField(
+        max_length=12, default="INV-", blank=True,
+        validators=[RegexValidator(r"^[A-Za-z0-9\-_/]*$", "Use letters, numbers, - _ or / only.")],
+        help_text="Put before every invoice number, e.g. INV- gives INV-0001.",
+    )
+    next_invoice_number = models.PositiveIntegerField(
+        default=1, validators=[MinValueValidator(1)],
+        help_text="The number the next invoice will get.",
+    )
+    invoice_due_days = models.PositiveIntegerField(
+        "days to pay", default=7, validators=[MaxValueValidator(365)],
+        help_text="New invoices are due this many days after they’re issued.",
+    )
+    payment_details = models.TextField(
+        blank=True, help_text="Printed on invoices, e.g. bank name, account title, IBAN.",
+    )
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

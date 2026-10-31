@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}Invoices{% endblock %}
+{% block heading %}Invoices{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="{% url 'invoices:create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New invoice</span></a>
+{% endblock %}
+{% block content %}
+<div class="stat-row stat-row-3">
+  <div class="stat"><div class="stat-label">Unpaid</div><div class="stat-value">{{ unpaid_total|default:"Nothing" }}</div></div>
+  <div class="stat"><div class="stat-label">Overdue</div><div class="stat-value{% if overdue_count %} is-bad{% endif %}">{{ overdue_total|default:"Nothing" }}</div>{% if overdue_count %}<div class="stat-sub">{{ overdue_count }} invoice{{ overdue_count|pluralize }}</div>{% endif %}</div>
+  <div class="stat"><div class="stat-label">Paid this month</div><div class="stat-value">{{ paid_this_month|default:"Nothing yet" }}</div></div>
+</div>
+
+<form class="toolbar" method="get" role="search">
+  <label class="search"><span class="sr-only">Search invoices</span><svg class="icon"><use href="#i-search"/></svg>
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="Invoice number or client…"></label>
+  {% if status != "all" %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+  <div class="pills" role="group" aria-label="Status">
+    {% for key, label in filters %}<a class="pill{% if status == key %} is-active{% endif %}" href="{% query_with status=key page='' %}">{{ label }}</a>{% endfor %}
+  </div>
+</form>
+
+<div class="card">
+  {% if page.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Number</th><th>Client</th><th class="hide-sm">Issued</th><th class="hide-sm">Due</th><th>Total</th><th>Status</th></tr></thead>
+    <tbody>{% for inv in page.object_list %}
+      <tr>
+        <td class="title-cell"><a href="{{ inv.get_absolute_url }}">{{ inv.number }}</a></td>
+        <td><a href="{{ inv.client.get_absolute_url }}" style="color:inherit">{{ inv.client.company }}</a></td>
+        <td class="hide-sm nowrap">{{ inv.issue_date|date:"j M Y" }}</td>
+        <td class="hide-sm nowrap">{{ inv.due_date|date:"j M Y" }}</td>
+        <td class="nowrap"><strong>{{ inv.total|money:inv.currency }}</strong></td>
+        <td>{% include "invoices/_status.html" with invoice=inv %}</td>
+      </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% if page.has_other_pages %}
+  <div class="pagination"><span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    <span style="display:flex;gap:8px">{% if page.has_previous %}<a class="btn btn-sm" href="{% query_with page=page.previous_page_number %}">Previous</a>{% endif %}{% if page.has_next %}<a class="btn btn-sm" href="{% query_with page=page.next_page_number %}">Next</a>{% endif %}</span></div>
+  {% endif %}
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon"><svg class="icon"><use href="#i-receipt"/></svg></div>
+    {% if q or status != "all" %}<h2>No invoices match</h2><p>Try a different search or filter.</p><a class="btn" href="{% url 'invoices:list' %}">Show all invoices</a>
+    {% else %}<h2>No invoices yet</h2><p>Create an invoice for a client’s package, add-ons like paid ads, or one-off work.</p>
+    <a class="btn btn-primary" href="{% url 'invoices:create' %}"><svg class="icon"><use href="#i-plus"/></svg> New invoice</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

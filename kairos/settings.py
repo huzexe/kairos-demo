@@ -48,6 +48,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.core",
     "apps.pipeline",
+    "apps.clients",
+    "apps.activity",
+    "apps.invoices",
+    "apps.dashboard",
 ]
 
 MIDDLEWARE = [
@@ -77,6 +81,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.agency",
+                "apps.activity.context_processors.follow_up_counts",
             ],
         },
     },

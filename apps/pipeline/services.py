@@ -71,6 +71,8 @@ def move_lead(
         raise ValidationError("Unknown stage.")
     lead = Lead.objects.select_for_update().get(pk=lead.pk)
     old_stage = lead.stage
+    if stage != Stage.WON and is_converted(lead):
+        raise ValidationError("This lead is already a client, so it stays in Won.")
 
     if stage == Stage.LOST:
         if lost_reason is None and not (old_stage == Stage.LOST and lead.lost_reason_id):
@@ -107,6 +109,11 @@ def move_lead(
         )
     lead.refresh_from_db()
     return lead
+
+
+def is_converted(lead: Lead) -> bool:
+    """True once the lead has been turned into a client."""
+    return Lead.objects.filter(pk=lead.pk, client__isnull=False).exists()
 
 
 def set_junk(lead: Lead, is_junk: bool) -> Lead:

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}Invoice {{ invoice.number }}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'invoices:list' %}">Invoices</a></span>{% endblock %}
+{% block heading %}{{ invoice.number }}{% endblock %}
+{% block actions %}
+  <a class="btn" href="{% url 'invoices:pdf' invoice.pk %}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-file"/></svg><span class="label">View PDF</span></a>
+  <a class="btn btn-primary" href="{% url 'invoices:pdf' invoice.pk %}?download=1"><svg class="icon"><use href="#i-download"/></svg><span class="label">Download PDF</span></a>
+{% endblock %}
+{% block content %}
+<div class="detail">
+  <section class="card invoice-sheet">
+    <div class="invoice-top">
+      <div>
+        <div class="invoice-agency">{{ agency.name }}</div>
+        {% if agency.address %}<div class="muted notes-text">{{ agency.address }}</div>{% endif %}
+      </div>
+      <div class="invoice-meta">
+        {% include "invoices/_status.html" %}
+        <dl>
+          <div><dt>Issued</dt><dd>{{ invoice.issue_date|date:"j M Y" }}</dd></div>
+          <div><dt>Due</dt><dd>{{ invoice.due_date|date:"j M Y" }}</dd></div>
+          {% if invoice.sent_at %}<div><dt>Sent</dt><dd>{{ invoice.sent_at|date:"j M Y" }}</dd></div>{% endif %}
+          {% if invoice.paid_at %}<div><dt>Paid</dt><dd>{{ invoice.paid_at|date:"j M Y" }}</dd></div>{% endif %}
+        </dl>
+      </div>
+    </div>
+    <div class="invoice-billto">
+      <div class="label-sm">Bill to</div>
+      <a href="{{ invoice.client.get_absolute_url }}"><strong>{{ invoice.client.company }}</strong></a>
+      {% with c=invoice.client.primary_contact %}{% if c %}<div class="muted">{{ c.name }}{% if c.email %} · {{ c.email }}{% endif %}</div>{% endif %}{% endwith %}
+    </div>
+    <div class="table-wrap"><table class="table invoice-lines">
+      <thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead>
+      <tbody>{% for line in lines %}
+        <tr><td>{{ line.description }}</td><td class="r nowrap">{{ line.quantity|floatformat:"-2" }}</td>
+          <td class="r nowrap">{{ line.unit_price|money:invoice.currency }}</td><td class="r nowrap">{{ line.amount|money:invoice.currency }}</td></tr>
+      {% endfor %}</tbody>
+      <tfoot><tr><td colspan="3" class="r">Total</td><td class="r nowrap invoice-total">{{ invoice.total|money:invoice.currency }}</td></tr></tfoot>
+    </table></div>
+    {% if invoice.notes %}<div class="card-body" style="border-top:1px solid var(--border)"><div class="label-sm">Notes</div><div class="notes-text">{{ invoice.notes }}</div></div>{% endif %}
+  </section>
+
+  <aside>
+    <section class="card">
+      <div class="card-head"><h2>Status</h2></div>
+      <div class="card-body stack">
+        {% if invoice.is_paid %}
+          <p class="callout-text ok"><svg class="icon"><use href="#i-check-circle"/></svg> Paid on {{ invoice.paid_at|date:"j M Y" }}.</p>
+          <form method="post" action="{% url 'invoices:status' invoice.pk %}">{% csrf_token %}<input type="hidden" name="action" value="unpaid">
+            <button class="btn btn-block" type="submit" data-confirm="Mark {{ invoice.number }} as unpaid?">Mark as unpaid</button></form>
+        {% else %}
+          {% if invoice.is_overdue %}<p class="callout-text bad"><svg class="icon"><use href="#i-alert"/></svg> {{ invoice.days_overdue }} day{{ invoice.days_overdue|pluralize }} overdue.</p>{% endif %}
+          <form method="post" action="{% url 'invoices:status' invoice.pk %}" class="stack">{% csrf_token %}<input type="hidden" name="action" value="paid">
+            <div class="field"><label for="id_paid_on">Payment received on</label>{{ paid_form.paid_on }}</div>
+            <button class="btn btn-primary btn-block" type="submit"><svg class="icon"><use href="#i-check"/></svg> Mark as paid</button></form>
+          <form method="post" action="{% url 'invoices:status' invoice.pk %}">{% csrf_token %}
+            {% if invoice.is_sent %}<input type="hidden" name="action" value="not-sent"><button class="btn btn-block" type="submit">Mark as not sent</button>
+            {% else %}<input type="hidden" name="action" value="sent"><button class="btn btn-block" type="submit"><svg class="icon"><use href="#i-send"/></svg> Mark as sent</button>{% endif %}</form>
+        {% endif %}
+      </div>
+    </section>
+    <section class="card">
+      <div class="card-body stack">
+        {% if not invoice.is_paid %}
+        <a class="btn btn-block" href="{% url 'invoices:edit' invoice.pk %}"><svg class="icon"><use href="#i-pencil"/></svg> Edit invoice</a>
+        <form method="post" action="{% url 'invoices:delete' invoice.pk %}" data-confirm="Delete {{ invoice.number }}? Its number won’t be reused.">{% csrf_token %}
+          <button class="btn btn-danger btn-block" type="submit"><svg class="icon"><use href="#i-trash"/></svg> Delete invoice</button></form>
+        {% else %}
+        <p class="muted" style="margin:0;font-size:13px">Paid invoices are locked. Mark it as unpaid to edit or delete it.</p>
+        {% endif %}
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

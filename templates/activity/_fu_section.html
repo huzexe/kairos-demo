@@ -1,0 +1,19 @@
+<section class="card fu-section{% if tone %} fu-{{ tone }}{% endif %}">
+  <div class="card-head"><h2>{{ title }} <span class="count-pill">{{ items|length }}</span></h2></div>
+  <ul class="fu-list">
+    {% for f in items %}
+    <li class="fu-row{% if f.is_overdue %} is-overdue{% elif f.is_today %} is-today{% endif %}{% if f.is_done %} is-done{% endif %}">
+      <form method="post" action="{% url 'activity:follow_up_done' f.pk %}">{% csrf_token %}
+        <input type="hidden" name="done" value="{% if f.is_done %}0{% else %}1{% endif %}"><input type="hidden" name="next" value="{{ request.path }}">
+        <button class="fu-check" type="submit" title="{% if f.is_done %}Mark as not done{% else %}Mark as done{% endif %}" aria-label="{% if f.is_done %}Mark “{{ f.note }}” as not done{% else %}Mark “{{ f.note }}” as done{% endif %}"><svg class="icon"><use href="#i-check"/></svg></button></form>
+      <div class="fu-text">
+        <a href="{% url 'activity:follow_up_edit' f.pk %}?next={{ request.path|urlencode }}">{{ f.note }}</a>
+        <span class="fu-due">{% if f.is_done %}Done {{ f.done_at|date:"D j M" }}{% else %}{{ f.due_date|date:"D j M" }}{% if f.is_overdue %} · {{ f.due_date|timesince }} late{% endif %}{% endif %}</span>
+      </div>
+      {% with s=f.subject %}
+      <a class="fu-subject" href="{{ s.get_absolute_url }}">{% if f.client_id %}<svg class="icon"><use href="#i-users"/></svg>{{ s.company }}{% else %}<svg class="icon"><use href="#i-kanban"/></svg>{{ s.display_title }}{% endif %}</a>
+      {% endwith %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Convert {{ lead.display_title }} to a client{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'pipeline:board' %}">Pipeline</a> / <a href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a></span>{% endblock %}
+{% block heading %}Convert to client{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:860px" novalidate>
+  {% csrf_token %}
+  <div class="card-head"><div><h2>Welcome {{ lead.display_title }} aboard</h2>
+    <p>{% if lead.stage != "won" %}The lead moves to Won. {% endif %}{{ lead.name }} becomes the main contact, and the sales timeline stays visible on the client page.</p></div></div>
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=form.company %}
+      {% include "includes/field.html" with field=form.industry %}
+      {% include "clients/_package_fields.html" %}
+      {% include "includes/field.html" with field=form.start_date %}
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{{ lead.get_absolute_url }}">Cancel</a>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-star"/></svg> Create client</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}{% include "clients/_package_script.html" %}{% endblock %}

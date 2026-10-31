@@ -17,9 +17,26 @@
       <span><span class="brand-name">Kairos</span><span class="brand-agency">{{ agency.name }}</span></span>
     </a>
     <nav class="nav">
+      <a href="{% url 'home' %}" class="{% if request.path == '/' %}is-active{% endif %}">
+        <svg class="icon"><use href="#i-home"/></svg> Dashboard
+      </a>
       <div class="nav-label">Sales</div>
       <a href="{% url 'pipeline:board' %}" class="{% nav_active '/pipeline/' %}">
         <svg class="icon"><use href="#i-kanban"/></svg> Pipeline
+      </a>
+      <a href="{% url 'activity:follow_ups' %}" class="{% nav_active '/activity/follow-ups/' %}">
+        <svg class="icon"><use href="#i-bell"/></svg> Follow-ups
+        {% if follow_ups_due %}<span class="count count-alert" title="Due today or overdue">{{ follow_ups_due }}</span>{% endif %}
+      </a>
+      <div class="nav-label">Clients</div>
+      <a href="{% url 'clients:list' %}" class="{% if request.path|slice:':9' == '/clients/' and '/clients/packages/' not in request.path %}is-active{% endif %}">
+        <svg class="icon"><use href="#i-users"/></svg> Clients
+      </a>
+      <a href="{% url 'invoices:list' %}" class="{% nav_active '/invoices/' %}">
+        <svg class="icon"><use href="#i-receipt"/></svg> Invoices
+      </a>
+      <a href="{% url 'clients:packages' %}" class="{% nav_active '/clients/packages/' %}">
+        <svg class="icon"><use href="#i-package"/></svg> Packages
       </a>
       <div class="nav-label">Workspace</div>
       <a href="{% url 'settings_agency' %}" class="{% nav_active '/settings/' %}">

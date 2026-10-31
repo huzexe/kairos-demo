@@ -1,0 +1,52 @@
+{% comment %}
+Timeline card for a lead or client page.
+Needs: timeline, activity_form, add_url, and optionally show_origin (client pages:
+mark entries that came from the lead).
+{% endcomment %}
+<section class="card" id="timeline">
+  <div class="card-head"><div><h2>Timeline</h2><p>Every call, meeting, message and note.</p></div></div>
+  <form method="post" action="{{ add_url }}" class="log-form" novalidate>
+    {% csrf_token %}
+    <div class="log-kinds segmented" role="radiogroup" aria-label="Type">
+      {% for radio in activity_form.kind %}<label>{{ radio.tag }}{{ radio.choice_label }}</label>{% endfor %}
+    </div>
+    <div class="log-grid">
+      <div class="field"><label for="{{ activity_form.channel.id_for_label }}" class="sr-only">Channel</label>{{ activity_form.channel }}</div>
+      <div class="field"><label for="{{ activity_form.contact_name.id_for_label }}" class="sr-only">Spoke with</label>
+        <input type="text" name="contact_name" id="{{ activity_form.contact_name.id_for_label }}" maxlength="120" placeholder="Spoke with…" value="{{ activity_form.contact_name.value|default:'' }}"></div>
+      <div class="field"><label for="{{ activity_form.occurred_at.id_for_label }}" class="sr-only">When</label>{{ activity_form.occurred_at }}</div>
+    </div>
+    <div class="field"><label for="{{ activity_form.summary.id_for_label }}" class="sr-only">What was discussed</label>{{ activity_form.summary }}</div>
+    <details class="log-follow">
+      <summary><svg class="icon"><use href="#i-bell"/></svg> Plan a follow-up</summary>
+      <div class="log-grid two">
+        <div class="field"><label for="{{ activity_form.follow_up_date.id_for_label }}">Next follow-up</label>{{ activity_form.follow_up_date }}</div>
+        <div class="field"><label for="{{ activity_form.follow_up_note.id_for_label }}">What to do</label>{{ activity_form.follow_up_note }}</div>
+      </div>
+    </details>
+    <div class="log-actions"><button class="btn btn-primary btn-sm" type="submit">Log it</button></div>
+  </form>
+
+  {% if timeline %}
+  <ol class="timeline">
+    {% for a in timeline %}
+    {% ifchanged a.occurred_at.date %}<li class="timeline-day">{{ a.occurred_at|date:"l, j F Y" }}</li>{% endifchanged %}
+    <li class="timeline-item kind-{{ a.kind }}">
+      <span class="timeline-icon"><svg class="icon"><use href="#i-{% if a.kind == 'call' %}phone{% elif a.kind == 'meeting' %}calendar{% elif a.kind == 'message' %}message{% else %}note{% endif %}"/></svg></span>
+      <div class="timeline-body">
+        <div class="timeline-meta">
+          <strong>{{ a.get_kind_display }}</strong>{% if a.channel %} · {{ a.get_channel_display }}{% endif %}
+          {% if a.contact_name %} · with {{ a.contact_name }}{% endif %}
+          <span class="muted">· {{ a.occurred_at|time:"H:i" }}{% if a.logged_by %} · {{ a.logged_by.get_full_name|default:a.logged_by.username }}{% endif %}</span>
+          {% if show_origin and a.lead_id %}<span class="tag tag-sm">While a lead</span>{% endif %}
+          <a class="timeline-edit" href="{% url 'activity:activity_edit' a.pk %}" title="Edit" aria-label="Edit this entry"><svg class="icon"><use href="#i-pencil"/></svg></a>
+        </div>
+        <div class="timeline-text">{{ a.summary }}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="timeline-empty muted">Nothing logged yet. After your next call or meeting, write down what was discussed so nothing is forgotten.</p>
+  {% endif %}
+</section>

@@ -49,6 +49,16 @@ class AgencySettingsForm(forms.ModelForm):
         widgets = {"address": forms.Textarea(attrs={"rows": 3})}
 
 
+class InvoiceSettingsForm(forms.ModelForm):
+    class Meta:
+        model = AgencySettings
+        fields = ["invoice_prefix", "next_invoice_number", "invoice_due_days", "payment_details"]
+        widgets = {"payment_details": forms.Textarea(attrs={
+            "rows": 4, "placeholder": "Bank: Meezan Bank\nAccount title: Pixel Studio\nIBAN: PK00 MEZN 0000 0000 0000 0000"})}
+        labels = {"invoice_prefix": "Number prefix", "next_invoice_number": "Next number",
+                  "payment_details": "Payment details"}
+
+
 class AccountForm(forms.ModelForm):
     class Meta:
         model = get_user_model()

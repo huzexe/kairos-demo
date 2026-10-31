@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ contact.name }}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'clients:list' %}">Clients</a> / <a href="{{ contact.client.get_absolute_url }}">{{ contact.client.company }}</a></span>{% endblock %}
+{% block heading %}Edit contact{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:640px" novalidate>
+  {% csrf_token %}
+  <div class="card-body"><div class="form-grid">
+    {% include "includes/field.html" with field=form.name %}
+    {% include "includes/field.html" with field=form.role %}
+    {% include "includes/field.html" with field=form.phone %}
+    {% include "includes/field.html" with field=form.email %}
+    {% include "includes/field.html" with field=form.is_primary span=1 %}
+  </div></div>
+  <div class="form-actions">
+    <button class="btn btn-danger" type="submit" name="delete" formnovalidate data-confirm="Remove {{ contact.name }}?">Remove</button>
+    <span class="spacer"></span>
+    <a class="btn btn-ghost" href="{{ contact.client.get_absolute_url }}#contacts">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>
+{% endblock %}

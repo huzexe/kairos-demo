@@ -7,6 +7,7 @@
     <a href="{% url 'settings_agency' %}" class="{% if tab == 'agency' %}is-active{% endif %}">Agency</a>
     <a href="{% url 'settings_list' 'lead-sources' %}" class="{% if tab == 'sources' %}is-active{% endif %}">Lead sources</a>
     <a href="{% url 'settings_list' 'lost-reasons' %}" class="{% if tab == 'reasons' %}is-active{% endif %}">Lost reasons</a>
+    <a href="{% url 'settings_invoices' %}" class="{% if tab == 'invoices' %}is-active{% endif %}">Invoices</a>
     <a href="{% url 'settings_account' %}" class="{% if tab == 'account' %}is-active{% endif %}">Your account</a>
   </nav>
   <div>{% block settings %}{% endblock %}</div>

@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db.models import Count, ProtectedError, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
@@ -30,7 +31,7 @@ def _filters(request):
 
 
 def _filtered_leads(f):
-    qs = Lead.objects.select_related("source", "lost_reason").filter(is_junk=f["junk"])
+    qs = Lead.objects.select_related("source", "lost_reason", "client").filter(is_junk=f["junk"])
     if f["q"]:
         qs = qs.filter(
             Q(name__icontains=f["q"]) | Q(company__icontains=f["q"]) | Q(email__icontains=f["q"])
@@ -132,8 +133,18 @@ def lead_detail(request, pk):
         reached = next((c.from_stage for c in history if c.to_stage == Stage.LOST and c.from_stage), Stage.NEW)
     stage_index = track.index(reached) if reached in track else 0
 
+    from apps.activity import services as activity_services
+    from apps.activity.forms import ActivityForm, FollowUpForm
+    from apps.clients.models import Client
+
     return render(request, "pipeline/lead_detail.html", {
         "lead": lead,
+        "client": Client.objects.filter(lead=lead).first(),
+        "timeline": activity_services.timeline(lead=lead),
+        "activity_form": ActivityForm(initial={"contact_name": lead.name}),
+        "follow_ups": list(activity_services.open_follow_ups().filter(lead=lead)),
+        "follow_up_form": FollowUpForm(),
+        "days_since_contact": activity_services.days_since(activity_services.last_contact(lead=lead)),
         "history": history,
         "stage_index": stage_index,
         "stages": Stage.choices,
@@ -156,6 +167,10 @@ def lead_edit(request, pk):
 def lead_delete(request, pk):
     lead = get_object_or_404(Lead, pk=pk)
     title = lead.display_title
+    if services.is_converted(lead):
+        messages.error(request, f"“{title}” is now a client, so the lead can’t be deleted. "
+                                "Its sales history is shown on the client’s page.")
+        return redirect(lead)
     lead.delete()
     messages.success(request, f"“{title}” was deleted.")
     return redirect("pipeline:board")
@@ -188,7 +203,10 @@ def lead_move(request, pk):
     if _wants_json(request):
         if error:
             return JsonResponse({"ok": False, "error": error}, status=400)
-        return JsonResponse({"ok": True, "stage": lead.stage, "stage_label": lead.get_stage_display()})
+        data = {"ok": True, "stage": lead.stage, "stage_label": lead.get_stage_display()}
+        if lead.stage == Stage.WON and not services.is_converted(lead):
+            data["convert_url"] = reverse("clients:convert", args=[lead.pk])
+        return JsonResponse(data)
 
     if error:
         messages.error(request, error)
@@ -239,7 +257,7 @@ def lead_bulk(request):
         count = services.bulk_set_junk(ids, False)
         messages.success(request, f"{count} lead{'s' if count != 1 else ''} restored.")
     elif action == "delete":
-        qs = Lead.objects.filter(pk__in=ids)
+        qs = Lead.objects.filter(pk__in=ids, client__isnull=True)
         count = qs.count()
         qs.delete()
         messages.success(request, f"Deleted {count} lead{'s' if count != 1 else ''}.")

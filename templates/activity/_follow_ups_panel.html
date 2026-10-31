@@ -1,0 +1,22 @@
+{# Open follow-ups for a lead or client, with a small form to plan one. Needs: follow_ups, follow_up_form, follow_up_url #}
+<section class="card" id="follow-ups">
+  <div class="card-head"><div><h2>Follow-ups</h2>{% if days_since_contact is not None %}<p>Last contact {% if days_since_contact == 0 %}today{% elif days_since_contact == 1 %}yesterday{% else %}{{ days_since_contact }} days ago{% endif %}</p>{% else %}<p>No contact logged yet</p>{% endif %}</div></div>
+  {% if follow_ups %}
+  <ul class="fu-list">
+    {% for f in follow_ups %}
+    <li class="fu-row{% if f.is_overdue %} is-overdue{% elif f.is_today %} is-today{% endif %}">
+      <form method="post" action="{% url 'activity:follow_up_done' f.pk %}">{% csrf_token %}<input type="hidden" name="done" value="1"><input type="hidden" name="next" value="{{ request.path }}#follow-ups">
+        <button class="fu-check" type="submit" title="Mark as done" aria-label="Mark “{{ f.note }}” as done"><svg class="icon"><use href="#i-check"/></svg></button></form>
+      <div class="fu-text"><a href="{% url 'activity:follow_up_edit' f.pk %}?next={{ request.path|urlencode }}">{{ f.note }}</a>
+        <span class="fu-due">{% if f.is_overdue %}Overdue · {% elif f.is_today %}Today · {% endif %}{{ f.due_date|date:"D j M" }}</span></div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="post" action="{{ follow_up_url }}" class="fu-add" novalidate>
+    {% csrf_token %}
+    <input type="date" name="due_date" value="{{ follow_up_form.due_date.value|date:'Y-m-d' }}" aria-label="Follow-up date" required>
+    <input type="text" name="note" maxlength="300" placeholder="What to do…" aria-label="What to do" required>
+    <button class="btn btn-sm" type="submit"><svg class="icon"><use href="#i-plus"/></svg> Plan</button>
+  </form>
+</section>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static kairos %}
+{% block title %}{% if is_new %}New invoice{% else %}Edit {{ invoice.number }}{% endif %}{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{% url 'invoices:list' %}">Invoices</a>{% if invoice %} / <a href="{{ invoice.get_absolute_url }}">{{ invoice.number }}</a>{% endif %}</span>{% endblock %}
+{% block heading %}{% if is_new %}New invoice <span class="muted heading-note">{{ next_number }}</span>{% else %}Edit {{ invoice.number }}{% endif %}{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:960px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid form-grid-3">
+      {% if form.client %}{% include "includes/field.html" with field=form.client %}{% else %}
+      <div class="field"><span class="label">Client</span><div class="static-value">{{ invoice.client.company }}</div></div>{% endif %}
+      {% include "includes/field.html" with field=form.issue_date %}
+      {% include "includes/field.html" with field=form.due_date %}
+    </div>
+
+    <h3 class="form-section">Lines <span class="muted heading-note" data-currency-label>{% if invoice %}in {{ invoice.currency }}{% endif %}</span></h3>
+    {{ lines.management_form }}
+    {% if lines.non_form_errors %}<div class="form-errors">{% for e in lines.non_form_errors %}{{ e }} {% endfor %}</div>{% endif %}
+    <div class="rows lines" data-rows="lines">
+      <div class="line-head" aria-hidden="true"><span>Description</span><span>Qty</span><span>Price</span><span class="r">Amount</span><span></span></div>
+      {% for f in lines %}
+      <div class="row-line line-row" data-row>
+        {{ f.id }}
+        <div class="field">{{ f.description }}{% for e in f.description.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+        <div class="field">{{ f.quantity }}{% for e in f.quantity.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+        <div class="field">{{ f.unit_price }}{% for e in f.unit_price.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+        <div class="line-amount" data-amount>—</div>
+        <label class="row-remove" title="Remove line">{{ f.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove line</span></label>
+      </div>
+      {% endfor %}
+    </div>
+    <template id="lines-template">
+      <div class="row-line line-row" data-row>
+        {{ lines.empty_form.id }}
+        <div class="field">{{ lines.empty_form.description }}</div>
+        <div class="field">{{ lines.empty_form.quantity }}</div>
+        <div class="field">{{ lines.empty_form.unit_price }}</div>
+        <div class="line-amount" data-amount>—</div>
+        <label class="row-remove" title="Remove line">{{ lines.empty_form.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove line</span></label>
+      </div>
+    </template>
+    <div class="lines-foot">
+      <button class="btn btn-sm" type="button" data-add-row="lines"><svg class="icon"><use href="#i-plus"/></svg> Add line</button>
+      <div class="lines-total">Total <strong data-total>—</strong></div>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin:8px 0 0">Tip: add paid ads management as its own line — it isn’t part of the package.</p>
+
+    <div class="form-grid" style="margin-top:18px">{% include "includes/field.html" with field=form.notes span=1 %}</div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{% if invoice %}{{ invoice.get_absolute_url }}{% else %}{% url 'invoices:list' %}{% endif %}">Cancel</a>
+    <span class="spacer"></span>
+    <button class="btn btn-primary" type="submit">{% if is_new %}Create invoice{% else %}Save changes{% endif %}</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+{{ client_data|json_script:"client-data" }}
+<script src="{% static 'js/rows.js' %}"></script>
+<script>
+  // Live amounts and total, in the client's currency.
+  (function () {
+    const clients = JSON.parse(document.getElementById("client-data").textContent || "{}") || {};
+    const clientSelect = document.getElementById("id_client");
+    let currency = "{{ invoice.currency|default:'' }}";
+    const fmt = (n) => (currency ? currency + " " : "") + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function recalc() {
+      let total = 0;
+      document.querySelectorAll("[data-rows=lines] [data-row]").forEach((row) => {
+        if (row.hidden) return;
+        const q = parseFloat(row.querySelector("input[name$='-quantity']").value);
+        const p = parseFloat(row.querySelector("input[name$='-unit_price']").value);
+        const amount = isNaN(q) || isNaN(p) ? null : Math.round(q * p * 100) / 100;
+        row.querySelector("[data-amount]").textContent = amount === null ? "—" : fmt(amount);
+        if (amount !== null) total += amount;
+      });
+      document.querySelector("[data-total]").textContent = fmt(total);
+    }
+
+    function onClient(fillLine) {
+      const c = clients[clientSelect.value];
+      currency = c ? c.currency : "";
+      document.querySelector("[data-currency-label]").textContent = c ? "in " + c.currency : "";
+      // Pre-fill the first line with the client's package, if the line is still empty.
+      const first = document.querySelector("[data-rows=lines] [data-row]");
+      if (fillLine && c && c.line && first) {
+        const d = first.querySelector("input[name$='-description']");
+        const p = first.querySelector("input[name$='-unit_price']");
+        if (!d.value && !p.value) {
+          d.value = c.line.description;
+          first.querySelector("input[name$='-quantity']").value = c.line.quantity;
+          p.value = c.line.unit_price || "";
+        }
+      }
+      recalc();
+    }
+
+    document.addEventListener("input", (e) => { if (e.target.closest("[data-rows=lines]")) recalc(); });
+    document.addEventListener("rows:added", (e) => { const q = e.detail.querySelector("input[name$='-quantity']"); if (q && !q.value) q.value = 1; recalc(); });
+    document.addEventListener("rows:changed", recalc);
+    if (clientSelect) { clientSelect.addEventListener("change", () => onClient(true)); onClient(false); } else { recalc(); }
+  })();
+</script>
+{% endblock %}

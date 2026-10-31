@@ -45,3 +45,21 @@ def make_lead(db, source):
         lead = Lead(name=name, stage=stage, currency=currency, **kw)
         return services.create_lead(lead)
     return make
+
+
+@pytest.fixture
+def package(db):
+    from apps.clients.models import Package, PackageItem
+    p = Package.objects.create(name="Growth", price=80000, currency="PKR")
+    PackageItem.objects.create(package=p, kind="post", quantity=16)
+    PackageItem.objects.create(package=p, kind="reel", quantity=6)
+    return p
+
+
+@pytest.fixture
+def make_client(db):
+    from apps.clients.models import Client
+
+    def make(company="Glow Skincare", currency="PKR", **kw):
+        return Client.objects.create(company=company, currency=currency, **kw)
+    return make

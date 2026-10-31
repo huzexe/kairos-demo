@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Edit timeline entry{% endblock %}
+{% block crumb %}<span class="crumb"><a href="{{ activity.subject.get_absolute_url }}">{% if activity.client_id %}{{ activity.client.company }}{% else %}{{ activity.lead.display_title }}{% endif %}</a></span>{% endblock %}
+{% block heading %}Edit timeline entry{% endblock %}
+{% block content %}
+<form method="post" class="card" style="max-width:720px" novalidate>
+  {% csrf_token %}
+  <div class="card-body">
+    {% include "includes/form_errors.html" %}
+    <div class="form-grid">
+      {% include "includes/field.html" with field=form.kind span=1 %}
+      {% include "includes/field.html" with field=form.channel %}
+      {% include "includes/field.html" with field=form.contact_name %}
+      {% include "includes/field.html" with field=form.occurred_at %}
+      {% include "includes/field.html" with field=form.summary span=1 %}
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn btn-danger" type="submit" name="delete" formnovalidate data-confirm="Remove this entry from the timeline?">Remove</button>
+    <span class="spacer"></span>
+    <a class="btn btn-ghost" href="{{ activity.subject.get_absolute_url }}#timeline">Cancel</a>
+    <button class="btn btn-primary" type="submit">Save</button>
+  </div>
+</form>
+{% endblock %}

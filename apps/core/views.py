@@ -5,12 +5,8 @@ from django.db import transaction
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
-from .forms import AccountForm, AgencySettingsForm, PasswordChangeForm, SetupForm
+from .forms import AccountForm, AgencySettingsForm, InvoiceSettingsForm, PasswordChangeForm, SetupForm
 from .models import AgencySettings
-
-
-def home(request):
-    return redirect("pipeline:board")
 
 
 @login_not_required
@@ -74,4 +70,19 @@ def settings_account(request):
         "account_form": account_form,
         "password_form": password_form,
         "tab": "account",
+    })
+
+
+@require_http_methods(["GET", "POST"])
+def settings_invoices(request):
+    from apps.invoices.services import preview_next_number
+
+    agency = AgencySettings.load()
+    form = InvoiceSettingsForm(request.POST or None, instance=agency)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Invoice settings saved.")
+        return redirect("settings_invoices")
+    return render(request, "core/settings_invoices.html", {
+        "form": form, "tab": "invoices", "preview": preview_next_number(),
     })

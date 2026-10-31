@@ -112,6 +112,15 @@
         }
         const junk = card.querySelector(".junk-btn");
         if (junk && stage === "won") junk.closest("form").remove();
+        const wonRow = card.querySelector(".won-row");
+        if (wonRow && stage !== "won") wonRow.remove();
+        if (stage === "won" && body.convert_url && !wonRow) {
+          const row = document.createElement("div");
+          row.className = "won-row";
+          row.innerHTML = '<a class="won-convert">Convert to client <svg class="icon"><use href="#i-arrow-right"/></svg></a>';
+          row.querySelector("a").href = body.convert_url;
+          card.querySelector(".foot").before(row);
+        }
       }
     } catch (err) {
       putBack(evt);
@@ -140,11 +149,12 @@
     });
   });
 
-  // Don't open the lead when a drag ends on its link.
+  // Don't open the lead when a drag ends on its link. The flag only lives
+  // until the drag's own trailing click, so later clicks work normally.
   let dragging = false;
   board.addEventListener("dragstart", () => { dragging = true; });
+  board.addEventListener("dragend", () => { setTimeout(() => { dragging = false; }, 0); });
   board.addEventListener("click", (e) => {
     if (dragging && e.target.closest(".lead-card")) e.preventDefault();
-    dragging = false;
   }, true);
 })();
