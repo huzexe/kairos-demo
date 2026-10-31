@@ -41,7 +41,7 @@ This is the **free demo edition**. It runs on your own computer and keeps all of
 - Invoices for a client's **package plus add-ons** (like paid ads management) or one-off work, always in the **client's own currency**.
 - **Automatic numbering** (`INV-0001`, with a prefix you choose). The amount for each line and the total update as you type.
 - **Sent / Not sent** and **Paid / Unpaid**, with the payment date. Overdue invoices are flagged automatically. Paid invoices are locked so they can't change by accident.
-- **PDF export**, with your payment details (bank, IBAN) printed so clients know how to pay.
+- **PDF export**, with your payment details (bank, IBAN) printed so clients know how to pay. Names in Urdu, Arabic, Turkish, Polish and other languages print correctly.
 
 ### Workspace
 - **First-run setup** creates the owner account and the agency profile. Your time zone is detected automatically.
@@ -55,7 +55,7 @@ This is the **free demo edition**. It runs on your own computer and keeps all of
 - Inputs are validated on the server: no negative amounts, due dates after issue dates, no future call logs, valid Instagram usernames, and a lost reason whenever a lead is lost.
 - Records that others depend on are protected: a client with invoices, a package in use or a lead that became a client can't be deleted by accident.
 - Works on desktop, tablet and phone.
-- 120 automated tests, run on Windows, macOS and Linux.
+- 133 automated tests, run on Windows, macOS and Linux, plus security checks: no known vulnerabilities in the libraries Kairos uses, links can't redirect you to other sites, and text people type is never run as code (on pages or in PDFs).
 
 ## Screenshots
 
@@ -153,4 +153,6 @@ Bundled third-party parts keep their own licenses:
 
 - [SortableJS](https://github.com/SortableJS/Sortable): MIT License
 - [ReportLab](https://www.reportlab.com/opensource/) (installed with pip, not bundled): BSD License
+- [arabic-reshaper](https://github.com/mpcabd/python-arabic-reshaper) (installed with pip, not bundled): MIT License
+- [Noto Sans and Noto Naskh Arabic](https://notofonts.github.io/) (used in PDFs): SIL Open Font License 1.1 (see `apps/invoices/fonts/OFL.txt`)
 - [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans): SIL Open Font License 1.1 (see `static/fonts/OFL.txt`)

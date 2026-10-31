@@ -57,7 +57,8 @@ def with_next_follow_up(clients: QuerySet) -> QuerySet:
 
 
 def open_follow_ups() -> QuerySet:
-    return (FollowUp.objects.filter(done_at__isnull=True)
+    """Follow-ups still to do. Those of junk leads are left out — junk is hidden everywhere."""
+    return (FollowUp.objects.filter(done_at__isnull=True).exclude(lead__is_junk=True)
             .select_related("lead", "client", "lead__client"))
 
 

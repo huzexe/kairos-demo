@@ -64,8 +64,13 @@ def _package_line(client):
     month = timezone.localdate().strftime("%B %Y")
     summary = client.package.summary
     description = f"{client.package.name} package — {month}" + (f" ({summary})" if summary else "")
-    return {"description": description[:200], "quantity": 1,
-            "unit_price": client.monthly_fee if client.monthly_fee is not None else client.package.price}
+    if client.monthly_fee is not None:
+        price = client.monthly_fee
+    elif client.package.currency == client.currency:
+        price = client.package.price
+    else:
+        price = None  # never put a price in another currency on the invoice
+    return {"description": description[:200], "quantity": 1, "unit_price": price}
 
 
 @require_http_methods(["GET", "POST"])
@@ -133,9 +138,16 @@ def invoice_pdf(request, pk):
     invoice = get_object_or_404(Invoice.objects.select_related("client"), pk=pk)
     response = HttpResponse(render_invoice(invoice), content_type="application/pdf")
     disposition = "attachment" if request.GET.get("download") == "1" else "inline"
-    safe_client = "".join(ch for ch in invoice.client.company if ch.isalnum() or ch in " -_").strip() or "client"
-    response["Content-Disposition"] = f'{disposition}; filename="{invoice.number} {safe_client}.pdf"'
+    response["Content-Disposition"] = f'{disposition}; filename="{_pdf_filename(invoice)}"'
     return response
+
+
+def _pdf_filename(invoice) -> str:
+    """ASCII-only file name without path separators or quotes, e.g. 'INV-0001 Glow Skincare.pdf'."""
+    def clean(text):
+        return "".join(ch if (ch.isascii() and (ch.isalnum() or ch in " -_")) else "-" for ch in text)
+    client = " ".join(clean(invoice.client.company).replace("-", " ").split())
+    return f"{clean(invoice.number)} {client}".strip() + ".pdf"
 
 
 @require_POST

@@ -11,6 +11,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
+from apps.core.utils import safe_next
+
 from . import services
 from .forms import LeadForm, MoveForm, OrderedChoiceForm
 from .models import Lead, LeadSource, LostReason, Stage, Temperature
@@ -228,10 +230,7 @@ def lead_junk(request, pk):
             request,
             f"“{lead.display_title}” moved to junk." if make_junk else f"“{lead.display_title}” restored.",
         )
-    next_url = request.POST.get("next", "")
-    if next_url.startswith("/") and not next_url.startswith("//"):
-        return redirect(next_url)
-    return redirect(lead)
+    return redirect(safe_next(request, lead.get_absolute_url()))
 
 
 @require_POST
@@ -239,9 +238,7 @@ def lead_bulk(request):
     """Bulk actions from the list view: junk, restore or delete selected leads."""
     ids = [int(i) for i in request.POST.getlist("ids") if i.isdigit()]
     action = request.POST.get("action")
-    next_url = request.POST.get("next", "")
-    if not next_url.startswith("/") or next_url.startswith("//"):
-        next_url = "/pipeline/list/"
+    next_url = safe_next(request, reverse("pipeline:list"))
     if not ids:
         messages.error(request, "Select at least one lead first.")
         return redirect(next_url)

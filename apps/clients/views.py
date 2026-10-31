@@ -167,7 +167,8 @@ def contact_add(request, pk):
         messages.success(request, f"Added {contact.name}.")
     else:
         messages.error(request, "Couldn’t add the contact: " + "; ".join(
-            f"{form.fields[f].label}: {' '.join(e)}" for f, e in form.errors.items()))
+            f"{form.fields[f].label}: {' '.join(e)}" if f in form.fields else " ".join(e)
+            for f, e in form.errors.items()))
     return redirect(f"{client.get_absolute_url()}#contacts")
 
 

@@ -122,6 +122,7 @@
   (function () {
     const form = document.getElementById("move-form");
     const dialog = document.getElementById("lost-dialog");
+    if (!form || !dialog) return;  // converted leads have no "Move to" form
     form.addEventListener("submit", (e) => {
       if (form.stage.value === "lost" && "{{ lead.stage }}" !== "lost") {
         e.preventDefault();

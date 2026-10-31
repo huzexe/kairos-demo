@@ -19,6 +19,9 @@ def setup(request):
     form = SetupForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
+            # Two setup forms sent at the same moment must not both create an owner.
+            if get_user_model().objects.exists():
+                return redirect("login")
             user = form.save(commit=False)
             # The owner has full access, including the admin pages.
             user.is_staff = True

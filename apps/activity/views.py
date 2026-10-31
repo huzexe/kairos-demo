@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.clients.models import Client
+from apps.core.utils import safe_next
 from apps.pipeline.models import Lead
 
 from . import services
@@ -23,14 +24,20 @@ def _subject(kind, pk):
 
 
 def _back(obj, anchor="timeline"):
-    """URL of the page the lead/client item belongs to."""
+    """
+    URL of the page the item shows on. Items from a lead that became a
+    client show on the client's page, so go back there.
+    """
     subject = obj.client if obj.client_id else obj.lead
+    if not obj.client_id:
+        client = Client.objects.filter(lead_id=obj.lead_id).first()
+        if client:
+            subject = client
     return f"{subject.get_absolute_url()}#{anchor}"
 
 
 def _safe_next(request, fallback):
-    nxt = request.POST.get("next", "")
-    return nxt if nxt.startswith("/") and not nxt.startswith("//") else fallback
+    return safe_next(request, fallback)
 
 
 def _errors_text(form):

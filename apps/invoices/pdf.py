@@ -4,7 +4,7 @@ Windows, macOS and Linux).
 """
 
 from io import BytesIO
-from xml.sax.saxutils import escape
+from html import escape as _html_escape
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
@@ -13,8 +13,33 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+import re
+from pathlib import Path
+
+import arabic_reshaper
+from reportlab.lib.fonts import addMapping
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
 from apps.core.currencies import format_money
 from apps.core.models import AgencySettings
+
+# Noto Sans covers Latin (incl. Turkish, Polish, Vietnamese…), Greek and
+# Cyrillic; Noto Naskh Arabic covers Urdu and Arabic. The PDF's built-in
+# Helvetica only knows Western European letters and prints boxes otherwise.
+FONT_DIR = Path(__file__).resolve().parent / "fonts"
+for _name, _file in [("Sans", "NotoSans-Regular.ttf"), ("Sans-Bold", "NotoSans-Bold.ttf"),
+                     ("Naskh", "NotoNaskhArabic-Regular.ttf"), ("Naskh-Bold", "NotoNaskhArabic-Bold.ttf")]:
+    if _name not in pdfmetrics.getRegisteredFontNames():
+        pdfmetrics.registerFont(TTFont(_name, str(FONT_DIR / _file)))
+addMapping("Sans", 0, 0, "Sans")
+addMapping("Sans", 1, 0, "Sans-Bold")
+addMapping("Naskh", 0, 0, "Naskh")
+addMapping("Naskh", 1, 0, "Naskh-Bold")
+
+# A run of Arabic-script words (letters, joined by spaces), e.g. an Urdu name.
+_ARABIC_RUN = re.compile(r"[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+"
+                         r"(?:\s+[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+)*")
 
 INK = colors.HexColor("#121826")
 MUTED = colors.HexColor("#6b7486")
@@ -24,24 +49,43 @@ BRAND = colors.HexColor("#0a7d69")
 
 
 def _style(name, **kw):
-    base = {"fontName": "Helvetica", "fontSize": 9.5, "leading": 13, "textColor": INK}
+    base = {"fontName": "Sans", "fontSize": 9.5, "leading": 13, "textColor": INK}
     base.update(kw)
     return ParagraphStyle(name, **base)
 
 
 S = {
-    "agency": _style("agency", fontName="Helvetica-Bold", fontSize=16, leading=20),
+    "agency": _style("agency", fontName="Sans-Bold", fontSize=16, leading=20),
     "small": _style("small", fontSize=8.5, leading=12, textColor=MUTED),
-    "label": _style("label", fontName="Helvetica-Bold", fontSize=7.5, leading=10, textColor=MUTED),
-    "title": _style("title", fontName="Helvetica-Bold", fontSize=22, leading=26, alignment=TA_RIGHT, textColor=BRAND),
+    "label": _style("label", fontName="Sans-Bold", fontSize=7.5, leading=10, textColor=MUTED),
+    "title": _style("title", fontName="Sans-Bold", fontSize=22, leading=26, alignment=TA_RIGHT, textColor=BRAND),
     "right": _style("right", alignment=TA_RIGHT),
     "right_small": _style("right_small", fontSize=8.5, leading=12, alignment=TA_RIGHT, textColor=MUTED),
     "body": _style("body"),
-    "bold": _style("bold", fontName="Helvetica-Bold"),
-    "th": _style("th", fontName="Helvetica-Bold", fontSize=8, textColor=MUTED),
-    "th_r": _style("th_r", fontName="Helvetica-Bold", fontSize=8, textColor=MUTED, alignment=TA_RIGHT),
-    "total": _style("total", fontName="Helvetica-Bold", fontSize=12, leading=16, alignment=TA_RIGHT),
+    "bold": _style("bold", fontName="Sans-Bold"),
+    "th": _style("th", fontName="Sans-Bold", fontSize=8, textColor=MUTED),
+    "th_r": _style("th_r", fontName="Sans-Bold", fontSize=8, textColor=MUTED, alignment=TA_RIGHT),
+    "total": _style("total", fontName="Sans-Bold", fontSize=12, leading=16, alignment=TA_RIGHT),
 }
+
+
+def escape(text):
+    """
+    Make user text safe inside ReportLab's mini-markup (<, >, &), and set
+    Urdu/Arabic words in the Naskh font with their letters joined and in
+    right-to-left order.
+    """
+    def arabic(match):
+        shaped = arabic_reshaper.reshape(match.group(0))[::-1]
+        return f'<font name="Naskh">{_html_escape(shaped, quote=False)}</font>'
+
+    parts, last = [], 0
+    for match in _ARABIC_RUN.finditer(text):
+        parts.append(_html_escape(text[last:match.start()], quote=False))
+        parts.append(arabic(match))
+        last = match.end()
+    parts.append(_html_escape(text[last:], quote=False))
+    return "".join(parts)
 
 
 def _p(text, style="body"):
@@ -136,5 +180,14 @@ def render_invoice(invoice) -> bytes:
     if extra:
         story += [Spacer(1, 12 * mm), KeepTogether(extra)]
 
-    doc.build(story)
+    doc.build(story, onFirstPage=_footer, onLaterPages=_footer)
     return buf.getvalue()
+
+
+def _footer(canvas, doc):
+    """Small credit line at the bottom of every page (demo edition)."""
+    canvas.saveState()
+    canvas.setFont("Sans", 7.5)
+    canvas.setFillColor(MUTED)
+    canvas.drawCentredString(A4[0] / 2, 10 * mm, "Made with Kairos")
+    canvas.restoreState()
