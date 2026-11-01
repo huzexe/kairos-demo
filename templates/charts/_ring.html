@@ -1,0 +1,5 @@
+{# A thin ring for a few parts of a whole, the total in the middle. Parts carry a `key` that picks their colour. #}
+<svg class="ring" viewBox="0 0 42 42" aria-hidden="true">
+  <circle class="ring-track" cx="21" cy="21" r="17" pathLength="100"/>
+  {% for s in ring.slices %}<circle class="ring-slice ring-{{ s.key }}" cx="21" cy="21" r="17" pathLength="100" stroke-dasharray="{{ s.dash }} {{ s.rest }}" stroke-dashoffset="{{ s.offset }}"/>{% endfor %}
+</svg>

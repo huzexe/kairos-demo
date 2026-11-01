@@ -6,6 +6,18 @@
   <a class="btn btn-primary" href="{% url 'clients:create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New client</span></a>
 {% endblock %}
 {% block content %}
+{% if income_panels %}
+<div class="dash dash-top">
+  <section class="card s8">
+    <div class="card-head"><div><h2>Where your recurring income comes from</h2><p>Biggest monthly fees first</p></div>{% include "charts/_currency_switch.html" with panels=income_panels %}</div>
+    {% include "charts/_income.html" %}
+  </section>
+  <section class="card s4">
+    <div class="card-head"><div><h2>Client contact</h2><p>Calls, meetings and messages you logged</p></div></div>
+    {% include "charts/_calendar.html" %}
+  </section>
+</div>
+{% endif %}
 <form class="toolbar" method="get" role="search">
   <label class="search"><span class="sr-only">Search clients</span><svg class="icon"><use href="#i-search"/></svg>
     <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search client, contact, phone…"></label>

@@ -97,6 +97,23 @@ def _qty(value):
     return f"{int(value)}" if value == value.to_integral_value() else f"{value:.2f}"
 
 
+def logo_flowable(agency, max_w=48 * mm, max_h=16 * mm):
+    """The agency logo scaled to fit, or nothing if there's no (readable) logo."""
+    if not agency.logo:
+        return []
+    try:
+        from reportlab.lib.utils import ImageReader
+        from reportlab.platypus import Image
+        path = agency.logo.path
+        w, h = ImageReader(path).getSize()
+        scale = min(max_w / w, max_h / h, 1)
+        img = Image(path, width=w * scale, height=h * scale)
+        img.hAlign = "LEFT"
+        return [img, Spacer(1, 4)]
+    except Exception:  # a missing or broken logo file must never stop an invoice
+        return []
+
+
 def render_invoice(invoice) -> bytes:
     agency = AgencySettings.load()
     client = invoice.client
@@ -111,7 +128,7 @@ def render_invoice(invoice) -> bytes:
 
     # Header: agency on the left, invoice title and dates on the right.
     agency_lines = [line for line in [agency.address, agency.phone, agency.email, agency.website] if line]
-    left = [_p(agency.name, "agency"), Spacer(1, 3)] + [_p(line, "small") for line in agency_lines]
+    left = [*logo_flowable(agency), _p(agency.name, "agency"), Spacer(1, 3)] + [_p(line, "small") for line in agency_lines]
     status = invoice.status_label.upper()
     status_hex = "#0f7b4a" if invoice.is_paid else "#c62828" if invoice.is_overdue else "#6b7486"
     right = [

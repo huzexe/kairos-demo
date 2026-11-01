@@ -20,4 +20,7 @@ urlpatterns = [
     path("activity/", include("apps.activity.urls")),
     path("invoices/", include("apps.invoices.urls")),
     path("admin/", admin.site.urls),
+    # Uploaded files (the agency logo). Kairos runs only on this computer, so Django
+    # serves them itself — and like every page, only to the signed-in owner.
+    path("media/<path:path>", core_views.media, name="media"),
 ]

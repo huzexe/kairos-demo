@@ -42,6 +42,8 @@ class AgencySettings(models.Model):
         "days to pay", default=7, validators=[MaxValueValidator(365)],
         help_text="New invoices are due this many days after they’re issued.",
     )
+    # Printed at the top of invoice PDFs.
+    logo = models.ImageField(upload_to="branding/", blank=True, help_text="PNG or JPG, shown on invoices.")
     payment_details = models.TextField(
         blank=True, help_text="Printed on invoices, e.g. bank name, account title, IBAN.",
     )

@@ -12,6 +12,7 @@ This is the **free demo edition**. It runs on your own computer and keeps all of
 - The owner's day at a glance: **open pipeline value**, **new leads** compared with the previous 30 days, **win rate**, **active clients** with their monthly value, and **unpaid invoices**.
 - **Follow-ups due** today or overdue, ticked off right on the dashboard.
 - **Overdue invoices**, **leads by source**, **why deals were lost**, and open leads per stage.
+- **Charts that answer real questions:** billed vs collected for the last 12 months, unpaid invoices by how late they are, a lead funnel that names your biggest drop-off, new leads per week, where your recurring income comes from, and a 12-week calendar of client contact. They appear on the dashboard and on their own pages, and money is always shown one currency at a time.
 - **Gone quiet:** active clients with no call, meeting or message for 21+ days, so you can reach out before they drift away.
 
 ### Pipeline
@@ -42,6 +43,7 @@ This is the **free demo edition**. It runs on your own computer and keeps all of
 - **Automatic numbering** (`INV-0001`, with a prefix you choose). The amount for each line and the total update as you type.
 - **Sent / Not sent** and **Paid / Unpaid**, with the payment date. Overdue invoices are flagged automatically. Paid invoices are locked so they can't change by accident.
 - **PDF export**, with your payment details (bank, IBAN) printed so clients know how to pay. Names in Urdu, Arabic, Turkish, Polish and other languages print correctly.
+- **Your logo on invoices:** upload it in Settings → Agency profile (PNG or JPG, up to 2 MB) and it prints at the top of every invoice PDF.
 
 ### Workspace
 - **First-run setup** creates the owner account and the agency profile. Your time zone is detected automatically.
@@ -55,7 +57,7 @@ This is the **free demo edition**. It runs on your own computer and keeps all of
 - Inputs are validated on the server: no negative amounts, due dates after issue dates, no future call logs, valid Instagram usernames, and a lost reason whenever a lead is lost.
 - Records that others depend on are protected: a client with invoices, a package in use or a lead that became a client can't be deleted by accident.
 - Works on desktop, tablet and phone.
-- 133 automated tests, run on Windows, macOS and Linux, plus security checks: no known vulnerabilities in the libraries Kairos uses, links can't redirect you to other sites, and text people type is never run as code (on pages or in PDFs).
+- 158 automated tests, run on Windows, macOS and Linux, plus security checks: no known vulnerabilities in the libraries Kairos uses, links can't redirect you to other sites, and text people type is never run as code (on pages or in PDFs).
 
 ## Screenshots
 
@@ -137,7 +139,7 @@ templates/            Page layout, sign-in pages, shared form pieces, error page
 static/css/kairos.css   All styles (design tokens at the top)
 static/js/            kairos.js (shared helpers), board.js (drag and drop), rows.js (add/remove form rows)
 static/vendor/        SortableJS
-static/fonts/         Plus Jakarta Sans (SIL Open Font License)
+static/fonts/         DM Sans (SIL Open Font License)
 tests/                Automated tests (pytest)
 start.py              Cross-platform launcher
 ```
@@ -155,4 +157,4 @@ Bundled third-party parts keep their own licenses:
 - [ReportLab](https://www.reportlab.com/opensource/) (installed with pip, not bundled): BSD License
 - [arabic-reshaper](https://github.com/mpcabd/python-arabic-reshaper) (installed with pip, not bundled): MIT License
 - [Noto Sans and Noto Naskh Arabic](https://notofonts.github.io/) (used in PDFs): SIL Open Font License 1.1 (see `apps/invoices/fonts/OFL.txt`)
-- [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans): SIL Open Font License 1.1 (see `static/fonts/OFL.txt`)
+- [DM Sans](https://fonts.google.com/specimen/DM+Sans): SIL Open Font License 1.1 (see `static/fonts/OFL.txt`)

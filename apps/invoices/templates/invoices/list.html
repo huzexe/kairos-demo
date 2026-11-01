@@ -6,10 +6,9 @@
   <a class="btn btn-primary" href="{% url 'invoices:create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New invoice</span></a>
 {% endblock %}
 {% block content %}
-<div class="stat-row stat-row-3">
-  <div class="stat"><div class="stat-label">Unpaid</div><div class="stat-value">{{ unpaid_total|default:"Nothing" }}</div></div>
-  <div class="stat"><div class="stat-label">Overdue</div><div class="stat-value{% if overdue_count %} is-bad{% endif %}">{{ overdue_total|default:"Nothing" }}</div>{% if overdue_count %}<div class="stat-sub">{{ overdue_count }} invoice{{ overdue_count|pluralize }}</div>{% endif %}</div>
-  <div class="stat"><div class="stat-label">Paid this month</div><div class="stat-value">{{ paid_this_month|default:"Nothing yet" }}</div></div>
+<div class="dash dash-top">
+  {% include "charts/_money_hero.html" %}
+  {% include "charts/_ages.html" %}
 </div>
 
 <form class="toolbar" method="get" role="search">

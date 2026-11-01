@@ -1,10 +1,25 @@
 {% extends "core/settings_base.html" %}
 {% block settings %}
-<form method="post" class="card" novalidate>
+<form method="post" class="card" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
-  <div class="card-head"><div><h2>Agency details</h2><p>Shown on invoices and reports.</p></div></div>
+  <div class="card-head"><div><h2>Agency profile</h2><p>Shown on your invoices.</p></div></div>
   <div class="card-body">
     {% include "includes/form_errors.html" %}
+    <div class="profile-logo{% if form.logo.errors %} has-error{% endif %}">
+      <div class="profile-pic" data-logo-preview>
+        {% if agency.logo %}<img src="{{ agency.logo.url }}" alt="Your agency logo">{% else %}<span>{{ agency.name|first|upper|default:"K" }}</span>{% endif %}
+      </div>
+      <div class="profile-pic-actions">
+        <label class="label" for="{{ form.logo.id_for_label }}">Agency logo</label>
+        <p class="muted">PNG or JPG, up to 2 MB. It goes at the top of every invoice PDF.</p>
+        <div class="profile-pic-buttons">
+          <label class="btn btn-sm" for="{{ form.logo.id_for_label }}">{% if agency.logo %}Replace logo{% else %}Upload logo{% endif %}</label>
+          <input class="sr-only" type="file" name="{{ form.logo.html_name }}" id="{{ form.logo.id_for_label }}" accept="image/png,image/jpeg" data-logo-input>
+          {% if agency.logo %}<label class="check"><input type="checkbox" name="{{ form.logo.html_name }}-clear"> Remove logo</label>{% endif %}
+        </div>
+        {% if form.logo.errors %}<ul class="errors">{% for e in form.logo.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
     <div class="form-grid">
       {% include "includes/field.html" with field=form.name span=1 %}
       {% include "includes/field.html" with field=form.email %}

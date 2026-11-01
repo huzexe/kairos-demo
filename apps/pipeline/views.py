@@ -56,6 +56,11 @@ def _filter_context(f):
     }
 
 
+def _insights():
+    from apps.dashboard import insights
+    return {"funnel": insights.funnel(), "weekly_leads": insights.weekly_leads()}
+
+
 def board(request):
     f = _filters(request)
     leads = _filtered_leads(f).order_by("position", "-created_at")
@@ -82,6 +87,7 @@ def board(request):
         columns.append({"stage": value, "label": label, "leads": cards, "totals": dict(totals)})
 
     return render(request, "pipeline/board.html", {
+        **_insights(),
         "columns": columns,
         "lost_reasons": LostReason.objects.filter(is_active=True),
         "view": "board",
@@ -97,6 +103,7 @@ def lead_list(request):
         leads = leads.filter(stage=stage)
     page = Paginator(leads, 50).get_page(request.GET.get("page"))
     return render(request, "pipeline/list.html", {
+        **_insights(),
         "page": page,
         "stage_filter": stage,
         "stages": Stage.choices,

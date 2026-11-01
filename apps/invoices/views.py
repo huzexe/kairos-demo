@@ -46,7 +46,9 @@ def invoice_list(request):
     page = Paginator(invoices, 50).get_page(request.GET.get("page"))
 
     unpaid = Invoice.objects.filter(is_paid=False)
+    from apps.dashboard import insights
     return render(request, "invoices/list.html", {
+        "money_panels": insights.money_panels(today),
         "page": page, "status": status, "q": q,
         "filters": [(key, label) for key, (label, _) in STATUS_FILTERS.items()],
         "unpaid_total": _totals(unpaid),

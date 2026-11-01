@@ -7,7 +7,7 @@
   <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
 {% endblock %}
 {% block content %}
-<div style="padding-right:28px">{% include "pipeline/_toolbar.html" %}</div>
+<div style="padding-right:var(--pad)">{% include "pipeline/_insights.html" %}{% include "pipeline/_toolbar.html" %}</div>
 
 <div class="board" id="board" data-move-url="{% url 'pipeline:lead_move' 0 %}" {% if filters.junk %}data-readonly{% endif %}>
   {% for col in columns %}

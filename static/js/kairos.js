@@ -57,6 +57,52 @@
     onScroll();
   }
 
+  // Show a chosen agency logo straight away (it's saved with the form).
+  document.querySelectorAll("[data-logo-input]").forEach((input) =>
+    input.addEventListener("change", () => {
+      const box = document.querySelector("[data-logo-preview]");
+      if (!box || !input.files[0]) return;
+      const img = document.createElement("img");
+      img.alt = "Your agency logo";
+      img.src = URL.createObjectURL(input.files[0]);
+      box.replaceChildren(img);
+    }));
+
+  // Money charts come once per currency: the switch shows one and is remembered.
+  const showCurrency = (code) => {
+    if (!document.querySelector(`[data-currency-panel="${CSS.escape(code)}"]`)) return;
+    document.querySelectorAll("[data-currency-panel]").forEach((el) => { el.hidden = el.dataset.currencyPanel !== code; });
+    document.querySelectorAll("[data-currency]").forEach((el) => el.setAttribute("aria-pressed", el.dataset.currency === code));
+  };
+  document.querySelectorAll("[data-currency]").forEach((el) =>
+    el.addEventListener("click", () => {
+      showCurrency(el.dataset.currency);
+      try { localStorage.setItem("kairos-currency", el.dataset.currency); } catch (e) { /* private window */ }
+    }));
+  try { const saved = localStorage.getItem("kairos-currency"); if (saved) showCurrency(saved); } catch (e) { /* private window */ }
+
+  // Chart tooltips: any mark with data-tip, on hover or keyboard focus.
+  const tip = document.createElement("div");
+  tip.className = "tip";
+  tip.hidden = true;
+  document.body.appendChild(tip);
+  const showTip = (mark) => {
+    tip.textContent = mark.dataset.tip;
+    tip.hidden = false;
+    const box = mark.getBoundingClientRect();
+    const left = Math.min(Math.max(8, box.left + box.width / 2 - tip.offsetWidth / 2), window.innerWidth - tip.offsetWidth - 8);
+    const top = box.top - tip.offsetHeight - 8;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top < 8 ? box.bottom + 8 : top}px`;
+  };
+  const tipEvent = (e) => {
+    const mark = e.target.closest && e.target.closest("[data-tip]");
+    if (mark) showTip(mark); else tip.hidden = true;
+  };
+  document.addEventListener("mouseover", tipEvent);
+  document.addEventListener("focusin", tipEvent);
+  document.addEventListener("scroll", () => { tip.hidden = true; }, { passive: true, capture: true });
+
   // Auto-submit filter dropdowns: <select data-autosubmit>
   document.querySelectorAll("[data-autosubmit]").forEach((el) =>
     el.addEventListener("change", () => el.form.submit()));

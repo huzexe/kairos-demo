@@ -60,6 +60,10 @@
   </div>
 
   <aside>
+    <section class="card">
+      <div class="card-head"><div><h2>Contact with {{ client.company }}</h2><p>Calls, meetings and messages you logged</p></div></div>
+      {% include "charts/_calendar.html" %}
+    </section>
     {% url 'activity:follow_up_add' 'client' client.pk as follow_up_url %}
     {% include "activity/_follow_ups_panel.html" with follow_up_url=follow_up_url %}
 

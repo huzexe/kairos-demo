@@ -12,45 +12,41 @@
 {% include "includes/icons.html" %}
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar" aria-label="Main menu">
-    <a class="brand" href="{% url 'home' %}">
+    <a class="brand" href="{% url 'home' %}" title="Kairos · {{ agency.name }}" aria-label="Kairos, dashboard">
       {% include "includes/logo.html" %}
-      <span><span class="brand-name">Kairos</span><span class="brand-agency">{{ agency.name }}</span></span>
     </a>
     <nav class="nav">
-      <a href="{% url 'home' %}" class="{% if request.path == '/' %}is-active{% endif %}">
-        <svg class="icon"><use href="#i-home"/></svg> Dashboard
+      <a href="{% url 'home' %}" title="Dashboard" class="{% if request.path == '/' %}is-active{% endif %}">
+        <svg class="icon"><use href="#i-home"/></svg><span class="nav-text">Home</span>
       </a>
       <div class="nav-label">Sales</div>
-      <a href="{% url 'pipeline:board' %}" class="{% nav_active '/pipeline/' %}">
-        <svg class="icon"><use href="#i-kanban"/></svg> Pipeline
+      <a href="{% url 'pipeline:board' %}" title="Pipeline" class="{% nav_active '/pipeline/' %}">
+        <svg class="icon"><use href="#i-kanban"/></svg><span class="nav-text">Pipeline</span>
       </a>
-      <a href="{% url 'activity:follow_ups' %}" class="{% nav_active '/activity/follow-ups/' %}">
-        <svg class="icon"><use href="#i-bell"/></svg> Follow-ups
+      <a href="{% url 'activity:follow_ups' %}" title="Follow-ups" class="{% nav_active '/activity/follow-ups/' %}">
+        <svg class="icon"><use href="#i-bell"/></svg><span class="nav-text">Follow-ups</span>
         {% if follow_ups_due %}<span class="count count-alert" title="Due today or overdue">{{ follow_ups_due }}</span>{% endif %}
       </a>
       <div class="nav-label">Clients</div>
-      <a href="{% url 'clients:list' %}" class="{% if request.path|slice:':9' == '/clients/' and '/clients/packages/' not in request.path %}is-active{% endif %}">
-        <svg class="icon"><use href="#i-users"/></svg> Clients
+      <a href="{% url 'clients:list' %}" title="Clients" class="{% if request.path|slice:':9' == '/clients/' and '/clients/packages/' not in request.path %}is-active{% endif %}">
+        <svg class="icon"><use href="#i-users"/></svg><span class="nav-text">Clients</span>
       </a>
-      <a href="{% url 'invoices:list' %}" class="{% nav_active '/invoices/' %}">
-        <svg class="icon"><use href="#i-receipt"/></svg> Invoices
+      <a href="{% url 'invoices:list' %}" title="Invoices" class="{% nav_active '/invoices/' %}">
+        <svg class="icon"><use href="#i-receipt"/></svg><span class="nav-text">Invoices</span>
       </a>
-      <a href="{% url 'clients:packages' %}" class="{% nav_active '/clients/packages/' %}">
-        <svg class="icon"><use href="#i-package"/></svg> Packages
+      <a href="{% url 'clients:packages' %}" title="Packages" class="{% nav_active '/clients/packages/' %}">
+        <svg class="icon"><use href="#i-package"/></svg><span class="nav-text">Packages</span>
       </a>
       <div class="nav-label">Workspace</div>
-      <a href="{% url 'settings_agency' %}" class="{% nav_active '/settings/' %}">
-        <svg class="icon"><use href="#i-settings"/></svg> Settings
+      <a href="{% url 'settings_agency' %}" title="Settings" class="{% nav_active '/settings/' %}">
+        <svg class="icon"><use href="#i-settings"/></svg><span class="nav-text">Settings</span>
       </a>
     </nav>
     <div class="sidebar-foot">
-      <div class="user-chip">
-        <span class="avatar">{{ user.get_short_name|default:user.username|first|upper }}</span>
-        <span class="who"><strong>{{ user.get_full_name|default:user.username }}</strong><span>Owner</span></span>
-        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
-          <button type="submit" title="Sign out" aria-label="Sign out"><svg class="icon"><use href="#i-logout"/></svg></button>
-        </form>
-      </div>
+      <a class="avatar{% if agency.logo %} has-logo{% endif %}" href="{% url 'settings_agency' %}" title="{{ user.get_full_name|default:user.username }} · Agency profile" aria-label="Agency profile">{% if agency.logo %}<img src="{{ agency.logo.url }}" alt="">{% else %}{{ user.get_short_name|default:user.username|first|upper }}{% endif %}</a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+        <button class="rail-out" type="submit" title="Sign out" aria-label="Sign out"><svg class="icon"><use href="#i-logout"/></svg></button>
+      </form>
     </div>
   </aside>
   <div class="scrim" data-close-nav></div>

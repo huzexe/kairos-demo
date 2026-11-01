@@ -109,6 +109,10 @@ class FollowUp(LeadOrClient):
         return self.done_at is not None
 
     @property
+    def days_late(self):
+        return (timezone.localdate() - self.due_date).days
+
+    @property
     def is_overdue(self):
         return not self.is_done and self.due_date < timezone.localdate()
 

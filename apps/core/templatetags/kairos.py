@@ -1,4 +1,5 @@
 from django import template
+from django.utils.html import format_html_join
 
 from apps.core.currencies import format_money, format_totals
 
@@ -41,3 +42,11 @@ def query_with(context, **changes):
 def get_item(mapping, key):
     """{{ usage|get_item:item.pk }}"""
     return mapping.get(key) if mapping else None
+
+
+@register.filter
+def totals_lines(text):
+    """"PKR 700 · USD 90" with each currency on its own line, so no line ends on a stray dot."""
+    if not text:
+        return ""
+    return format_html_join("", "<span class=\"total-line\">{}</span>", ((part,) for part in str(text).split(" · ")))

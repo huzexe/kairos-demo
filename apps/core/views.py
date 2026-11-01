@@ -41,7 +41,7 @@ def setup(request):
 @require_http_methods(["GET", "POST"])
 def settings_agency(request):
     agency = AgencySettings.load()
-    form = AgencySettingsForm(request.POST or None, instance=agency)
+    form = AgencySettingsForm(request.POST or None, request.FILES or None, instance=agency)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Agency details saved.")
@@ -89,3 +89,10 @@ def settings_invoices(request):
     return render(request, "core/settings_invoices.html", {
         "form": form, "tab": "invoices", "preview": preview_next_number(),
     })
+
+
+def media(request, path):
+    """Uploaded files (the agency logo), for the signed-in owner only."""
+    from django.conf import settings
+    from django.views.static import serve
+    return serve(request, path, document_root=settings.MEDIA_ROOT)

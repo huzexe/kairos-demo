@@ -45,8 +45,31 @@ class AgencySettingsForm(forms.ModelForm):
 
     class Meta:
         model = AgencySettings
-        fields = ["name", "email", "phone", "website", "address", "default_currency", "timezone"]
-        widgets = {"address": forms.Textarea(attrs={"rows": 3})}
+        fields = ["name", "email", "phone", "website", "address", "default_currency", "timezone", "logo"]
+        widgets = {"address": forms.Textarea(attrs={"rows": 3}),
+                   "logo": forms.ClearableFileInput(attrs={"accept": "image/png,image/jpeg"})}
+
+    MAX_LOGO_BYTES = 2 * 1024 * 1024
+
+    def clean_logo(self):
+        """Only real PNG/JPEG images, up to 2 MB (the file is checked, not just its name)."""
+        logo = self.cleaned_data.get("logo")
+        if not logo or not hasattr(logo, "content_type"):
+            return logo  # unchanged or cleared
+        if logo.size > self.MAX_LOGO_BYTES:
+            raise forms.ValidationError("The logo must be smaller than 2 MB.")
+        from PIL import Image
+        try:
+            logo.seek(0)
+            with Image.open(logo) as img:
+                kind = img.format
+                img.verify()
+        except Exception:
+            raise forms.ValidationError("That file isn’t a PNG or JPG image.") from None
+        if kind not in ("PNG", "JPEG"):
+            raise forms.ValidationError("Use a PNG or JPG image.")
+        logo.seek(0)
+        return logo
 
 
 class InvoiceSettingsForm(forms.ModelForm):

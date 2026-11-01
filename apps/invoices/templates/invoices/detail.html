@@ -33,8 +33,8 @@
     <div class="table-wrap"><table class="table invoice-lines">
       <thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead>
       <tbody>{% for line in lines %}
-        <tr><td>{{ line.description }}</td><td class="r nowrap">{{ line.quantity|floatformat:"-2" }}</td>
-          <td class="r nowrap">{{ line.unit_price|money:invoice.currency }}</td><td class="r nowrap">{{ line.amount|money:invoice.currency }}</td></tr>
+        <tr><td>{{ line.description }}<div class="line-detail muted">{{ line.quantity|floatformat:"-2" }} × {{ line.unit_price|money:invoice.currency }}</div></td><td class="r nowrap line-col">{{ line.quantity|floatformat:"-2" }}</td>
+          <td class="r nowrap line-col">{{ line.unit_price|money:invoice.currency }}</td><td class="r nowrap">{{ line.amount|money:invoice.currency }}</td></tr>
       {% endfor %}</tbody>
       <tfoot><tr><td colspan="3" class="r">Total</td><td class="r nowrap invoice-total">{{ invoice.total|money:invoice.currency }}</td></tr></tfoot>
     </table></div>

@@ -1,0 +1,14 @@
+{# New leads per week, this week last and in a lighter tone because it isn't over yet. #}
+<div class="chart-pad">
+  <div class="cols">
+    <div class="cols-grid" aria-hidden="true">{% for t in weekly_leads.ticks %}<div class="cols-tick" style="bottom:{{ t.pct }}%"><span>{{ t.label }}</span></div>{% endfor %}</div>
+    <ol class="cols-plot">
+      {% for w in weekly_leads.rows %}
+      <li class="cols-slot{% if w.current %} is-current{% endif %}" tabindex="0" data-tip="{{ w.tip }}" aria-label="{{ w.tip }}">
+        <div class="cols-bars">{% if w.count %}<span class="bar bar-single" style="height:{{ w.pct }}%"></span>{% endif %}</div>
+        <span class="cols-x">{% cycle w.label '' '' %}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>

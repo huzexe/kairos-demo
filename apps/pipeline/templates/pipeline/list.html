@@ -6,6 +6,7 @@
   <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
 {% endblock %}
 {% block content %}
+{% include "pipeline/_insights.html" with open=True %}
 {% include "pipeline/_toolbar.html" %}
 
 <div class="card">

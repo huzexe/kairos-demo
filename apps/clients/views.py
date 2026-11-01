@@ -49,7 +49,10 @@ def client_list(request):
     for c in active.values("currency", "monthly_fee"):
         monthly[c["currency"]] = monthly.get(c["currency"], 0) + c["monthly_fee"]
 
+    from apps.dashboard import insights
     return render(request, "clients/list.html", {
+        "income_panels": insights.income_shares(),
+        "calendar": insights.activity_calendar(),
         "page": page, "q": q, "status": status, "statuses": ClientStatus.choices,
         "monthly_total": format_totals(monthly),
         "counts": dict(Client.objects.values_list("status").annotate(n=Count("pk"))),
@@ -110,7 +113,9 @@ def client_detail(request, pk):
     unpaid = {}
     for inv in client.invoices.filter(is_paid=False):
         unpaid[inv.currency] = unpaid.get(inv.currency, 0) + inv.total
+    from apps.dashboard import insights
     return render(request, "clients/detail.html", {
+        "calendar": insights.activity_calendar(client=client),
         "client": client,
         "contacts": client.contacts.all(),
         "timeline": timeline,

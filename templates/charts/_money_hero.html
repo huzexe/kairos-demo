@@ -1,0 +1,43 @@
+{# The dark panel: recurring income beside twelve months of billed against collected, per currency. #}
+<section class="hero" aria-label="Money">
+  <div class="hero-head">
+    <h2>Money</h2>
+    {% include "charts/_currency_switch.html" with panels=money_panels dark=True %}
+  </div>
+  {% for p in money_panels %}
+  <div class="hero-body" data-currency-panel="{{ p.code }}"{% if not forloop.first %} hidden{% endif %}>
+    <div class="hero-figures">
+      <div class="hero-lead">
+        <div class="hero-label">Recurring income</div>
+        <div class="hero-value">{% if p.recurring %}{{ p.recurring }}<span> / month</span>{% else %}<span class="hero-none">No monthly fees in {{ p.code }}</span>{% endif %}</div>
+        {% if p.note %}<p class="hero-note">{{ p.note }}</p>{% elif not p.has_money %}<p class="hero-note">Nothing billed in {{ p.code }} yet. Your first invoice starts the chart.</p>{% endif %}
+      </div>
+      <dl class="hero-pairs">
+        <div><dt>Collected this month</dt><dd>{{ p.collected_now }}</dd></div>
+        <div><dt>Billed this month</dt><dd>{{ p.billed_now }}</dd></div>
+        <div><dt>Still owed</dt><dd>{{ p.owed }}{% if p.late_count %} <a class="hero-late" href="{% url 'invoices:list' %}?status=overdue">{{ p.late_count }} late</a>{% endif %}</dd></div>
+      </dl>
+    </div>
+    <div class="hero-chart">
+      <div class="hero-chart-head">
+        <h3>Billed and collected, last 12 months</h3>
+        <ul class="legend legend-dark" aria-hidden="true">
+          <li><span class="key key-billed"></span>Billed</li>
+          <li><span class="key key-collected"></span>Collected</li>
+        </ul>
+      </div>
+      <div class="cols cols-dark">
+        <div class="cols-grid" aria-hidden="true">{% for t in p.ticks %}<div class="cols-tick" style="bottom:{{ t.pct }}%"><span>{{ t.label }}</span></div>{% endfor %}</div>
+        <ol class="cols-plot">
+          {% for m in p.months %}
+          <li class="cols-slot{% if m.current %} is-current{% endif %}" tabindex="0" data-tip="{{ m.tip }}" aria-label="{{ m.tip }}">
+            <div class="cols-bars">{% if m.billed %}<span class="bar bar-billed" style="height:{{ m.billed_pct }}%"></span>{% endif %}{% if m.collected %}<span class="bar bar-collected" style="height:{{ m.collected_pct }}%"></span>{% endif %}</div>
+            <span class="cols-x">{{ m.label }}</span>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</section>
