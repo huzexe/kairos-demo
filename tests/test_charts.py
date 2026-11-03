@@ -234,3 +234,15 @@ def test_every_page_uses_the_new_styles_only(client_in, make_lead, make_client):
         assert res.status_code == 200, url
         html = res.content.decode()
         assert "legacy.css" not in html and "kairos.css" not in html and "#i-" not in html, url
+
+
+def test_error_pages_only_link_stylesheets_that_exist():
+    import re
+    from pathlib import Path
+
+    from django.conf import settings as dj
+
+    for name in ("500.html",):
+        html = (Path(dj.BASE_DIR) / "templates" / name).read_text()
+        for href in re.findall(r'href="/static/([^"]+\.css)"', html):
+            assert (Path(dj.BASE_DIR) / "static" / href).exists(), href
