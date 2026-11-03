@@ -1,5 +1,6 @@
 from django import template
-from django.utils.html import format_html_join
+from django.templatetags.static import static
+from django.utils.html import format_html, format_html_join
 
 from apps.core.currencies import format_money, format_totals
 
@@ -16,6 +17,46 @@ def money(amount, code):
 def totals(value):
     """{{ column.totals|totals }} → 'PKR 450,000 · USD 2,000'"""
     return format_totals(value or {})
+
+
+@register.simple_tag
+def icon(name, size=""):
+    """{% icon "pipeline" %} → the icon from the sprite. Size is "16" or "24"; the default is 20."""
+    size_class = f" i-{size}" if size else ""
+    return format_html('<svg class="i{}" aria-hidden="true"><use href="{}#{}"/></svg>',
+                       size_class, static("icons/sprite.svg"), name)
+
+
+SOURCE_ICONS = {"Instagram": "instagram", "Referral": "referral", "Paid Ads": "ads",
+                "Cold Outreach": "outreach", "Hot Outreach": "outreach"}
+
+
+@register.filter
+def source_icon(name):
+    """The icon for a default lead source; any source the owner adds gets a generic one."""
+    return SOURCE_ICONS.get(name, "source")
+
+
+KIND_ICONS = {"call": "call", "meeting": "meeting", "message": "message", "note": "note"}
+
+
+@register.filter
+def kind_icon(kind):
+    """The timeline marker for a call, meeting, message or note."""
+    return KIND_ICONS.get(kind, "other")
+
+
+AGE_WARN_DAYS = 7
+AGE_DANGER_DAYS = 14
+AGE_FULL_DAYS = 21
+
+
+@register.inclusion_tag("includes/ageing.html")
+def ageing_bar(days):
+    """The thin bar on a lead card: fills with days in stage, then turns warn and danger."""
+    days = days or 0
+    tone = "is-danger" if days >= AGE_DANGER_DAYS else "is-warn" if days >= AGE_WARN_DAYS else ""
+    return {"days": days, "tone": tone, "fill": min(round(days * 100 / AGE_FULL_DAYS), 100)}
 
 
 @register.simple_tag(takes_context=True)

@@ -1,0 +1,4 @@
+<div role="img" aria-label="{{ label }}: {{ pct }}%, warning above {{ warn_at }}%">
+  <div class="meter{% if is_warn %} is-warn{% endif %}" style="--v:{{ pct }}%;--at:{{ warn_at }}%" aria-hidden="true"><span class="meter-fill"></span><span class="meter-mark"></span></div>
+  <div class="meter-scale" style="--at:{{ warn_at }}%" aria-hidden="true"><span>{{ warn_at }}%</span></div>
+</div>

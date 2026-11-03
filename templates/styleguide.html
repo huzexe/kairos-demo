@@ -1,0 +1,430 @@
+{% load static kairos %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Style guide · Kairos</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <script src="{% static 'js/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/charts.css' %}">
+  <style>
+    .sg-section { padding-block: var(--s-48); border-top: 1px solid var(--graphite); scroll-margin-top: var(--s-16); }
+    .sg-section > h2 { margin-bottom: var(--s-24); }
+    .sg-swatch { display: flex; flex-direction: column; justify-content: flex-end; min-height: 112px; padding: var(--s-8); border: 1px solid var(--hairline); font-family: var(--font-mono); font-size: var(--text-11); line-height: 1.4; }
+    .sg-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-8); }
+    .sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: var(--s-16) var(--s-8); }
+    .sg-icons > div { display: flex; flex-direction: column; gap: var(--s-8); font-family: var(--font-mono); font-size: var(--text-11); overflow-wrap: anywhere; }
+    .sg-dialog-demo { position: static; display: block; margin: 0; box-shadow: var(--hard-shadow); animation: none; max-width: 100%; }
+    .sg-theme { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-16); padding-block: var(--s-12); }
+    .sg-pair { padding: var(--s-4) var(--s-8); font-weight: 500; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<header class="block-header band-today">
+  <div class="page">
+    <div class="block-header-inner">
+      <h1>Poster Desk</h1>
+      <span class="block-number">/00</span>
+      <p class="block-summary">Every component, every state. Development only.</p>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+  <div class="sg-theme">
+    <div class="switch" role="group" aria-label="Theme">
+      <button type="button" data-theme-set="light">Light</button>
+      <button type="button" data-theme-set="dark">Night shift</button>
+      <button type="button" data-theme-set="system">System</button>
+    </div>
+  </div>
+
+  <section class="sg-section" id="colour">
+    <h2>Colour</h2>
+    <div class="stack stack-24">
+      <div class="sg-swatches">
+        <div class="sg-swatch" style="background:var(--bone)">bone</div>
+        <div class="sg-swatch" style="background:var(--bone-2)">bone-2</div>
+        <div class="sg-swatch" style="background:var(--white)">white</div>
+        <div class="sg-swatch" style="background:var(--graphite);color:var(--bone)">graphite</div>
+        <div class="sg-swatch" style="background:var(--graphite-2);color:var(--bone)">graphite-2</div>
+        <div class="sg-swatch" style="background:var(--graphite-3);color:var(--paper-ink)">graphite-3</div>
+        <div class="sg-swatch" style="background:var(--acid);color:var(--on-acid)">acid</div>
+      </div>
+      <div class="sg-swatches">
+        <div class="sg-swatch stage-new" style="background:var(--stage);color:var(--on-stage)">New Lead</div>
+        <div class="sg-swatch stage-discovery" style="background:var(--stage);color:var(--on-stage)">Discovery Call</div>
+        <div class="sg-swatch stage-proposal" style="background:var(--stage);color:var(--on-stage)">Proposal Sent</div>
+        <div class="sg-swatch stage-follow_up" style="background:var(--stage);color:var(--on-stage)">Follow-up</div>
+        <div class="sg-swatch stage-won" style="background:var(--stage);color:var(--on-stage)">Won</div>
+        <div class="sg-swatch stage-lost" style="background:var(--stage);color:var(--on-stage)">Lost</div>
+      </div>
+      <div class="sg-swatches">
+        <div class="sg-swatch" style="background:var(--ok);color:var(--paper-ink)">ok</div>
+        <div class="sg-swatch" style="background:var(--warn);color:var(--paper-ink)">warn</div>
+        <div class="sg-swatch" style="background:var(--danger);color:var(--on-danger)">danger</div>
+        <div class="sg-swatch" style="background:var(--info);color:var(--on-block-discovery)">info</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="contrast">
+    <h2>Contrast</h2>
+    <p class="muted" style="margin-bottom:var(--s-16)">Measured live in the current theme. AA asks for 4.5:1 on small text and 3:1 on large text.</p>
+    <div class="table-wrap">
+      <table class="table" id="contrast-table">
+        <thead><tr><th scope="col">Pair</th><th scope="col">Sample</th><th scope="col" class="num">Ratio</th><th scope="col">Small text</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sg-section" id="type">
+    <h2>Type</h2>
+    <div class="stack stack-24">
+      <div class="hero-number">PKR 1,240,000</div>
+      <h1>Bricolage 48</h1>
+      <h2>Bricolage 32</h2>
+      <h3>Bricolage 24</h3>
+      <h4>Bricolage 18</h4>
+      <p>Hanken Grotesk 15. Body and interface text, set for a long working day. Matthew Murdock asked to move the discovery call to Thursday.</p>
+      <p class="small">Hanken Grotesk 13. Help text and secondary details.</p>
+      <p class="mono">IBM Plex Mono: KRS-0042 · 03 Nov 2026 · USD 2,400.00</p>
+      <p class="section-label">Section label</p>
+      <p dir="auto">میتھیو مرڈاک نے جمعرات کو کال کرنے کو کہا۔</p>
+    </div>
+  </section>
+
+  <section class="sg-section" id="icons">
+    <h2>Icons</h2>
+    <div class="sg-icons">
+      {% for name in icons %}<div>{% icon name "24" %}<span>{{ name }}</span></div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="sg-section" id="buttons">
+    <h2>Buttons</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Kind</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Active</th><th scope="col">Focus</th><th scope="col">Disabled</th><th scope="col">Loading</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Primary</th><td><button class="btn btn-primary" type="button">Add lead</button></td><td><button class="btn btn-primary is-hover" type="button">Add lead</button></td><td><button class="btn btn-primary is-active" type="button">Add lead</button></td><td><button class="btn btn-primary is-focus" type="button">Add lead</button></td><td><button class="btn btn-primary" type="button" disabled>Add lead</button></td><td><button class="btn btn-primary is-loading" type="button">Add lead</button></td></tr>
+          <tr><th scope="row">Secondary</th><td><button class="btn" type="button">Export</button></td><td><button class="btn is-hover" type="button">Export</button></td><td><button class="btn is-active" type="button">Export</button></td><td><button class="btn is-focus" type="button">Export</button></td><td><button class="btn" type="button" disabled>Export</button></td><td><button class="btn is-loading" type="button">Export</button></td></tr>
+          <tr><th scope="row">Ghost</th><td><button class="btn btn-ghost" type="button">Cancel</button></td><td><button class="btn btn-ghost is-hover" type="button">Cancel</button></td><td><button class="btn btn-ghost is-active" type="button">Cancel</button></td><td><button class="btn btn-ghost is-focus" type="button">Cancel</button></td><td><button class="btn btn-ghost" type="button" disabled>Cancel</button></td><td><button class="btn btn-ghost is-loading" type="button">Cancel</button></td></tr>
+          <tr><th scope="row">Danger</th><td><button class="btn btn-danger" type="button">Delete</button></td><td><button class="btn btn-danger is-hover" type="button">Delete</button></td><td><button class="btn btn-danger is-active" type="button">Delete</button></td><td><button class="btn btn-danger is-focus" type="button">Delete</button></td><td><button class="btn btn-danger" type="button" disabled>Delete</button></td><td><button class="btn btn-danger is-loading" type="button">Delete</button></td></tr>
+          <tr><th scope="row">Icon only</th><td><button class="btn btn-icon" type="button" aria-label="More">{% icon "more" %}</button></td><td><button class="btn btn-icon is-hover" type="button" aria-label="More">{% icon "more" %}</button></td><td><button class="btn btn-icon is-active" type="button" aria-label="More">{% icon "more" %}</button></td><td><button class="btn btn-icon is-focus" type="button" aria-label="More">{% icon "more" %}</button></td><td><button class="btn btn-icon" type="button" aria-label="More" disabled>{% icon "more" %}</button></td><td><button class="btn btn-icon is-loading" type="button" aria-label="More">{% icon "more" %}</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sg-section" id="fields">
+    <h2>Fields</h2>
+    <div class="grid">
+      <div class="span-7 grid" style="align-content:start">
+        <label class="field span-6"><span class="field-label">Contact name</span><input class="input" dir="auto" value="Matthew Murdock"></label>
+        <label class="field span-6"><span class="field-label">Placeholder</span><input class="input" placeholder="Company name"></label>
+        <label class="field span-6"><span class="field-label">Hover</span><input class="input is-hover" value="Murdock &amp; Co"></label>
+        <label class="field span-6"><span class="field-label">Focus</span><input class="input is-focus" value="Murdock &amp; Co"></label>
+        <label class="field span-6"><span class="field-label">Disabled</span><input class="input" value="Not editable" disabled></label>
+        <label class="field span-6"><span class="field-label">Error</span><input class="input is-invalid" aria-invalid="true" value="matthew@"><span class="field-error">Enter a full email address, like name@agency.com.</span></label>
+        <label class="field span-6"><span class="field-label">Lead source</span><span class="select-wrap"><select class="input"><option>Instagram</option><option>Referral</option><option>Paid Ads</option></select>{% icon "chevron" %}</span></label>
+        <label class="field span-6"><span class="field-label">Due date</span><input class="input mono" type="date" value="2026-11-03"><span class="field-help">Clients see this date on the invoice.</span></label>
+        <label class="field span-6"><span class="field-label">Monthly fee</span><input class="input mono" inputmode="decimal" value="85,000.00"></label>
+        <label class="field span-6"><span class="field-label">Search</span><span class="search-field">{% icon "search" %}<input class="input" type="search" placeholder="Search name, company, phone"><kbd>/</kbd></span></label>
+        <label class="field span-12"><span class="field-label">Notes</span><textarea class="input" dir="auto">Wants reels first, then stories in the new year.</textarea></label>
+      </div>
+      <div class="span-5 stack">
+        <fieldset class="stack stack-8"><legend class="section-label" style="margin-bottom:var(--s-8)">Checkboxes</legend>
+          <label class="check"><input type="checkbox"> Not ticked</label>
+          <label class="check"><input type="checkbox" checked> Ticked</label>
+          <label class="check"><input type="checkbox" class="is-focus"> Focus</label>
+          <label class="check"><input type="checkbox" disabled> Disabled</label>
+        </fieldset>
+        <fieldset class="stack stack-8"><legend class="section-label" style="margin-bottom:var(--s-8)">Radios</legend>
+          <label class="check"><input type="radio" name="sg-temp" checked> Hot</label>
+          <label class="check"><input type="radio" name="sg-temp"> Cold</label>
+          <label class="check"><input type="radio" name="sg-temp" disabled> Disabled</label>
+        </fieldset>
+        <fieldset class="stack stack-8"><legend class="section-label" style="margin-bottom:var(--s-8)">Toggles</legend>
+          <label class="check toggle"><input type="checkbox" role="switch"> Off</label>
+          <label class="check toggle"><input type="checkbox" role="switch" checked> On</label>
+          <label class="check toggle"><input type="checkbox" role="switch" disabled> Disabled</label>
+        </fieldset>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="tags">
+    <h2>Tags and chips</h2>
+    <div class="stack">
+      <div class="row row-8">
+        <span class="tag tag-stage stage-new">New Lead</span><span class="tag tag-stage stage-discovery">Discovery Call</span><span class="tag tag-stage stage-proposal">Proposal Sent</span><span class="tag tag-stage stage-follow_up">Follow-up</span><span class="tag tag-stage stage-won">Won</span><span class="tag tag-stage stage-lost">Lost</span>
+      </div>
+      <div class="row row-8">
+        <span class="tag tag-quiet">{% icon "instagram" %}Instagram</span><span class="tag tag-quiet">{% icon "referral" %}Referral</span><span class="tag tag-quiet">{% icon "ads" %}Paid Ads</span><span class="tag tag-quiet">{% icon "outreach" %}Cold Outreach</span><span class="tag tag-quiet">{% icon "source" %}Trade show</span>
+      </div>
+      <div class="row row-8">
+        <span class="tag tag-hot">{% icon "hot" %}Hot</span><span class="tag">{% icon "cold" %}Cold</span>
+      </div>
+      <div class="row row-8">
+        <span class="tag tag-quiet"><span class="dot"></span>Draft</span><span class="tag tag-quiet is-info"><span class="dot"></span>Sent</span><span class="tag tag-quiet is-ok"><span class="dot"></span>Paid</span><span class="tag tag-quiet is-danger"><span class="dot"></span>Overdue</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="tables">
+    <h2>Tables</h2>
+    <div class="table-wrap" style="--table-height:280px">
+      <table class="table" data-bar="sg-bar">
+        <thead><tr>
+          <th scope="col" class="edge"><span class="sr-only">Stage colour</span></th>
+          <th scope="col" class="pick"><span class="sr-only">Select</span></th>
+          <th scope="col"><button class="sort" type="button" data-sort="text">Name {% icon "sort" %}</button></th>
+          <th scope="col">Source</th>
+          <th scope="col" aria-sort="descending" class="num"><button class="sort" type="button" data-sort="number">Value {% icon "sort" %}</button></th>
+          <th scope="col" class="num"><button class="sort" type="button" data-sort="number">Days {% icon "sort" %}</button></th>
+        </tr></thead>
+        <tbody>
+          <tr class="stage-proposal"><td class="edge"></td><td class="pick"><label class="check"><input type="checkbox"><span class="sr-only">Select Matthew Murdock</span></label></td><td dir="auto">Matthew Murdock</td><td>Referral</td><td class="num" data-value="240000">PKR 240,000</td><td class="num" data-value="12">12</td></tr>
+          <tr class="stage-discovery"><td class="edge"></td><td class="pick"><label class="check"><input type="checkbox"><span class="sr-only">Select Nelson Studio</span></label></td><td dir="auto">Nelson Studio</td><td>Instagram</td><td class="num" data-value="180000">PKR 180,000</td><td class="num" data-value="3">3</td></tr>
+          <tr class="stage-follow_up"><td class="edge"></td><td class="pick"><label class="check"><input type="checkbox"><span class="sr-only">Select Page Bakery</span></label></td><td dir="auto">Page Bakery</td><td>Paid Ads</td><td class="num" data-value="95000">PKR 95,000</td><td class="num" data-value="21">21</td></tr>
+          <tr class="stage-new"><td class="edge"></td><td class="pick"><label class="check"><input type="checkbox"><span class="sr-only">Select Hell's Kitchen Gym</span></label></td><td dir="auto">Hell's Kitchen Gym</td><td>Cold Outreach</td><td class="num" data-value="60000">PKR 60,000</td><td class="num" data-value="1">1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="action-bar" id="sg-bar" hidden>
+      <span class="mono small"><span data-count>0</span> selected</span>
+      <span class="spacer"></span>
+      <button class="btn btn-sm" type="button">{% icon "junk" "16" %}Junk</button>
+      <button class="btn btn-sm" type="button">Delete</button>
+    </div>
+  </section>
+
+  <section class="sg-section" id="tabs">
+    <h2>Tabs and switches</h2>
+    <div class="stack stack-24">
+      <div>
+        <div class="tabs" role="tablist" aria-label="Lead sections">
+          <button class="tab" role="tab" type="button" id="sg-t1" aria-selected="true" aria-controls="sg-p1">Overview</button>
+          <button class="tab" role="tab" type="button" id="sg-t2" aria-selected="false" aria-controls="sg-p2" tabindex="-1">Timeline</button>
+          <button class="tab" role="tab" type="button" id="sg-t3" aria-selected="false" aria-controls="sg-p3" tabindex="-1">Stage history</button>
+        </div>
+        <div class="tab-panel" id="sg-p1" role="tabpanel" aria-labelledby="sg-t1">Contacts, notes and key dates.</div>
+        <div class="tab-panel" id="sg-p2" role="tabpanel" aria-labelledby="sg-t2" hidden>Calls, messages and notes.</div>
+        <div class="tab-panel" id="sg-p3" role="tabpanel" aria-labelledby="sg-t3" hidden>Each stage with its dates.</div>
+      </div>
+      <div class="switch" role="group" aria-label="Currency">
+        <button type="button" aria-pressed="true">PKR</button><button type="button" aria-pressed="false">USD</button><button type="button" aria-pressed="false">AED</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="sg-section" id="block-headers" style="padding-bottom:0">
+  <div class="page"><h2 style="margin-bottom:var(--s-24)">Block headers</h2></div>
+  <div class="stack" style="gap:0">
+    <header class="block-header band-today"><div class="page"><div class="block-header-inner"><h1>Today</h1><span class="block-number">/01</span><p class="block-summary">Tue 03 Nov 2026 · 4 follow-ups · 2 overdue invoices</p></div></div></header>
+    <header class="block-header band-pipeline"><div class="page"><div class="block-header-inner"><h1>Pipeline</h1><span class="block-number">/02</span><p class="block-summary">14 open leads · PKR 1.2M in play</p></div></div></header>
+    <header class="block-header band-clients"><div class="page"><div class="block-header-inner"><h1>Clients</h1><span class="block-number">/03</span><p class="block-summary">11 active · 3 gone quiet</p></div></div></header>
+    <header class="block-header band-packages"><div class="page"><div class="block-header-inner"><h1>Packages</h1><span class="block-number">/04</span><p class="block-summary">3 packages · 11 clients on them</p></div></div></header>
+    <header class="block-header band-follow-ups"><div class="page"><div class="block-header-inner"><h1>Follow-ups</h1><span class="block-number">/05</span><p class="block-summary">2 overdue · 4 today · 9 in the next 7 days</p></div></div></header>
+    <header class="block-header band-settings"><div class="page"><div class="block-header-inner"><h1>Settings</h1><span class="block-number">/09</span><p class="block-summary">Murdock Creative</p></div></div></header>
+  </div>
+</section>
+
+<div class="page">
+  <section class="sg-section" id="tiles" style="border-top:0">
+    <h2>KPI tiles and receipts</h2>
+    <div class="grid">
+      <div class="span-7 grid" style="align-content:start">
+        <div class="tile span-6"><span class="section-label">Open pipeline</span><span class="tile-value">575,000 <small>PKR</small></span><span class="tile-note">14 leads, estimated monthly</span></div>
+        <div class="tile is-focus-tile span-6"><span class="section-label">Unpaid invoices</span><span class="tile-value">7</span><span class="tile-note">The screen's one acid element</span></div>
+      </div>
+      <div class="span-5">
+        <dl class="receipt">
+          <div class="receipt-row"><dt>Monthly fee</dt><dd>PKR 85,000.00</dd></div>
+          <div class="receipt-row"><dt>16 posts, 6 reels</dt><dd>included</dd></div>
+          <div class="receipt-row"><dt>Discount</dt><dd>PKR 5,000.00</dd></div>
+          <div class="receipt-row receipt-total"><dt>Total</dt><dd>PKR 80,000.00</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="signature">
+    <h2>Signature pieces</h2>
+    <div class="grid">
+      <div class="span-4 stack">
+        <span class="section-label">Ageing bars</span>
+        <div class="stack stack-8"><span class="mono small">3 days in stage</span><div class="ageing" style="--fill:20%"><span></span></div></div>
+        <div class="stack stack-8"><span class="mono small">12 days in stage</span><div class="ageing is-warn" style="--fill:60%"><span></span></div></div>
+        <div class="stack stack-8"><span class="mono small">28 days in stage</span><div class="ageing is-danger" style="--fill:100%"><span></span></div></div>
+      </div>
+      <div class="span-4 stack">
+        <span class="section-label">Pinned note</span>
+        <div class="pinned-note" dir="auto">Matthew prefers WhatsApp after 4pm. Send the proposal before Friday.</div>
+      </div>
+      <div class="span-4 stack">
+        <span class="section-label">Crossing off: tick one</span>
+        <div class="crossoff"><div class="crossoff-body"><label class="check"><input type="checkbox"><span class="crossoff-text" dir="auto">Call Matthew Murdock about the proposal</span></label></div></div>
+        <div class="crossoff"><div class="crossoff-body"><label class="check"><input type="checkbox"><span class="crossoff-text" dir="auto">Send Page Bakery their invoice</span></label></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="floating">
+    <h2>Modals, drawers, palette</h2>
+    <div class="row">
+      <button class="btn" type="button" data-open="sg-modal">Open modal</button>
+      <button class="btn" type="button" data-open="sg-drawer">Open drawer</button>
+      <button class="btn" type="button" data-open="sg-palette">Open command palette</button>
+    </div>
+    <div class="grid" style="margin-top:var(--s-32)">
+      <div class="span-6">
+        <dialog class="modal sg-dialog-demo" open>
+          <div class="dialog-head"><h3>Why was this lead lost?</h3><button class="btn btn-ghost btn-icon" type="button" aria-label="Close">{% icon "close" %}</button></div>
+          <div class="dialog-body"><label class="field"><span class="field-label">Reason</span><span class="select-wrap"><select class="input"><option>Price too high</option></select>{% icon "chevron" %}</span></label></div>
+          <div class="dialog-foot"><button class="btn btn-ghost" type="button">Cancel</button><button class="btn btn-primary" type="button">Mark as lost</button></div>
+        </dialog>
+      </div>
+      <div class="span-6">
+        <dialog class="palette sg-dialog-demo" open style="margin:0">
+          <div class="palette-input">{% icon "search" %}<input aria-label="Search" value="murd"></div>
+          <ul class="palette-results">
+            <li class="section-label palette-group">Leads</li>
+            <li><a class="palette-item" href="#palette" aria-selected="true">{% icon "pipeline" %}Matthew Murdock<span class="palette-meta">Proposal Sent</span></a></li>
+            <li class="section-label palette-group">Actions</li>
+            <li><a class="palette-item" href="#palette">{% icon "plus" %}New lead</a></li>
+          </ul>
+          <div class="palette-foot"><span>Up/Down move</span><span>Enter open</span><span>Tab groups</span><span>Esc close</span></div>
+        </dialog>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="feedback">
+    <h2>Toasts and tooltips</h2>
+    <div class="grid">
+      <div class="span-6 stack">
+        <div class="toasts toasts-inline">
+          <div class="toast" role="status"><span class="toast-text" dir="auto">Moved Matthew Murdock to junk.</span><button class="btn" type="button">Undo</button></div>
+          <div class="toast" role="status"><span class="toast-text">Invoice KRS-0042 marked as paid.</span></div>
+        </div>
+        <div><button class="btn" type="button" id="sg-toast">Show a toast</button></div>
+      </div>
+      <div class="span-6"><span class="tooltip">Oct 2026
+Billed PKR 420,000
+Collected PKR 365,000</span></div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="states">
+    <h2>Empty, locked and loading</h2>
+    <div class="grid">
+      <div class="span-4 empty">{% icon "pipeline" "24" %}<h4>No leads yet</h4><p class="small muted">Your first lead starts the funnel and the charts.</p><a class="btn btn-primary btn-sm" href="#states">Log your first lead</a></div>
+      <div class="span-4 locked">{% icon "lock" "24" %}<h4>Client health</h4><p class="small">Scores every client green, yellow or red, with the reasons.</p><p class="locked-note">Available in the full version</p></div>
+      <div class="span-4 stack" aria-label="Loading example">
+        <span class="skeleton" style="--h:32px;--w:60%"></span><span class="skeleton"></span><span class="skeleton" style="--w:85%"></span><span class="skeleton" style="--h:96px"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section" id="misc">
+    <h2>Pagination and avatars</h2>
+    <div class="row row-24 between">
+      <nav class="pagination" aria-label="Pages"><span class="is-disabled">Prev</span><span aria-current="page">1</span><a href="#misc">2</a><a href="#misc">3</a><a href="#misc">Next</a></nav>
+      <div class="row"><span class="avatar">M</span><span class="avatar avatar-lg">MM</span></div>
+    </div>
+  </section>
+</div>
+
+<dialog class="modal" id="sg-modal" aria-labelledby="sg-modal-title">
+  <div class="dialog-head"><h3 id="sg-modal-title">Why was this lead lost?</h3><button class="btn btn-ghost btn-icon" type="button" aria-label="Close" data-close>{% icon "close" %}</button></div>
+  <div class="dialog-body"><label class="field"><span class="field-label">Reason</span><span class="select-wrap"><select class="input"><option>Price too high</option><option>Went with another agency</option></select>{% icon "chevron" %}</span></label></div>
+  <div class="dialog-foot"><button class="btn btn-ghost" type="button" data-close>Cancel</button><button class="btn btn-primary" type="button" data-close>Mark as lost</button></div>
+</dialog>
+
+<dialog class="drawer stage-proposal" id="sg-drawer" aria-labelledby="sg-drawer-title">
+  <div class="drawer-head"><div class="row between"><span class="section-label">Proposal Sent</span><button class="btn btn-ghost btn-icon" style="color:inherit" type="button" aria-label="Close" data-close>{% icon "close" %}</button></div><h2 id="sg-drawer-title" dir="auto">Matthew Murdock</h2></div>
+  <div class="dialog-body stack">
+    <dl class="receipt"><div class="receipt-row"><dt>Estimated monthly</dt><dd>PKR 240,000</dd></div><div class="receipt-row"><dt>Days in stage</dt><dd>12</dd></div></dl>
+    <div class="ageing is-warn" style="--fill:60%"><span></span></div>
+    <div class="pinned-note" dir="auto">Matthew prefers WhatsApp after 4pm.</div>
+    <div class="row"><button class="btn btn-primary" type="button">Move to Follow-up</button></div>
+  </div>
+</dialog>
+
+<dialog class="palette" id="sg-palette" aria-label="Command palette">
+  <div class="palette-input">{% icon "search" %}<input aria-label="Search" placeholder="Search leads, clients, invoices"></div>
+  <ul class="palette-results">
+    <li class="section-label palette-group">Actions</li>
+    <li><a class="palette-item" href="#palette" aria-selected="true">{% icon "plus" %}New lead</a></li>
+    <li><a class="palette-item" href="#palette">{% icon "invoice" %}New invoice</a></li>
+    <li><a class="palette-item" href="#palette">{% icon "follow-up" %}Go to follow-ups</a></li>
+  </ul>
+  <div class="palette-foot"><span>Up/Down move</span><span>Enter open</span><span>Tab groups</span><span>Esc close</span></div>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="{% static 'js/poster.js' %}"></script>
+<script>
+  // Style guide only: live contrast report and the toast demo.
+  (function () {
+    const PAIRS = [
+      ["graphite on bone", "--graphite", "--bone"], ["graphite-2 on bone", "--graphite-2", "--bone"],
+      ["graphite-3 on bone", "--graphite-3", "--bone"], ["graphite-3 on bone-2", "--graphite-3", "--bone-2"],
+      ["on-acid on acid", "--on-acid", "--acid"],
+      ["on New Lead", "--on-block-new", "--block-new"], ["on Discovery Call", "--on-block-discovery", "--block-discovery"],
+      ["on Proposal Sent", "--on-block-proposal", "--block-proposal"], ["on Follow-up", "--on-block-followup", "--block-followup"],
+      ["on Won", "--on-block-won", "--block-won"], ["on Lost", "--on-block-lost", "--block-lost"],
+      ["ok as text", "--ok-text", "--bone"], ["warn as text", "--warn-text", "--bone"], ["danger as text", "--danger-text", "--bone"], ["info as text", "--info-text", "--bone"],
+      ["on rail", "--on-rail", "--rail"],
+    ];
+    const canvas = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    function rgb(token) {
+      canvas.fillStyle = "black";
+      canvas.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+      canvas.clearRect(0, 0, 1, 1);
+      canvas.fillRect(0, 0, 1, 1);
+      return [...canvas.getImageData(0, 0, 1, 1).data].slice(0, 3);
+    }
+    function lum(c) {
+      const v = c.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; });
+      return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    }
+    function draw() {
+      const body = document.querySelector("#contrast-table tbody");
+      body.textContent = "";
+      PAIRS.forEach(([name, fg, bg]) => {
+        const a = lum(rgb(fg)), b = lum(rgb(bg));
+        const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        const row = body.insertRow();
+        row.insertCell().textContent = name;
+        const sample = document.createElement("span");
+        sample.className = "sg-pair";
+        sample.style.color = `var(${fg})`;
+        sample.style.background = `var(${bg})`;
+        sample.textContent = "Sample 123";
+        row.insertCell().append(sample);
+        const value = row.insertCell();
+        value.className = "num";
+        value.textContent = ratio.toFixed(2);
+        const ok = ratio >= 4.5;
+        const verdict = row.insertCell();
+        verdict.innerHTML = `<span class="tag tag-quiet ${ok ? "is-ok" : "is-danger"}"><span class="dot"></span>${ok ? "Passes" : "Fails"}</span>`;
+      });
+    }
+    draw();
+    document.addEventListener("kairos:theme", draw);
+    document.getElementById("sg-toast").addEventListener("click", () =>
+      window.kairosUndoToast("Moved Matthew Murdock to junk.", () => window.kairosUndoToast("Restored.")));
+  })();
+</script>
+</body>
+</html>

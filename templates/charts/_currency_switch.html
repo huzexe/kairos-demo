@@ -1,2 +1,0 @@
-{# Shows one currency's charts at a time, on every panel of the page. Hidden when only one is in use. #}
-{% if panels|length > 1 %}<div class="seg{% if dark %} seg-dark{% endif %}" role="group" aria-label="Currency">{% for p in panels %}<button type="button" data-currency="{{ p.code }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">{{ p.code }}</button>{% endfor %}</div>{% endif %}

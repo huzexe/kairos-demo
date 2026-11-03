@@ -10,5 +10,6 @@ urlpatterns = [
     path("follow-ups/<int:pk>/done/", views.follow_up_done, name="follow_up_done"),
     path("<str:kind>/<int:pk>/log/", views.activity_add, name="activity_add"),
     path("<str:kind>/<int:pk>/follow-up/", views.follow_up_add, name="follow_up_add"),
+    path("timeline/", views.timeline_list, name="timeline"),
     path("timeline/<int:pk>/", views.activity_edit, name="activity_edit"),
 ]

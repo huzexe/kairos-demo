@@ -25,6 +25,7 @@ FUNNEL_DAYS = 90
 FUNNEL_STAGES = [*OPEN_STAGES, Stage.WON]
 AGE_BUCKETS = (("not_due", "Not due yet"), ("late_30", "1–30 days late"),
                ("late_60", "31–60 days late"), ("late_more", "Over 60 days late"))
+AGE_TONES = {"not_due": "neutral", "late_30": "warn", "late_60": "serious", "late_more": "danger"}
 
 
 def _pct(part, whole):
@@ -99,6 +100,12 @@ def _collection_note(months, code):
     return f"You collected {rate}% of what you billed from {span}."
 
 
+def _money_delta(now, before, code):
+    """'+ PKR 25,000' against the previous month."""
+    change = now - before
+    return f"{'+' if change >= 0 else '−'} {format_money(abs(change), code)}"
+
+
 def money_panels(today=None):
     """One panel per currency in use, the agency's main currency first."""
     today = today or timezone.localdate()
@@ -133,8 +140,10 @@ def money_panels(today=None):
             "ticks": [{"label": compact(t), "pct": _pct(t, top)} for t in ticks],
             "recurring": format_money(fees[code], code) if fees[code] else "",
             "collected_now": format_money(rows[-1]["collected"], code),
+            "collected_delta": _money_delta(rows[-1]["collected"], rows[-2]["collected"], code),
             "billed_now": format_money(rows[-1]["billed"], code),
             "owed": format_money(owed, code), "owed_amount": owed, "ages": ages,
+            "stacked": [{"label": a["label"], "text": a["text"], "pct": a["pct"], "tone": AGE_TONES[a["key"]]} for a in ages],
             "open_count": sum(a["count"] for a in ages),
             "late_count": sum(a["count"] for a in ages if a["key"] != "not_due"),
             "note": _collection_note(rows, code),
@@ -158,11 +167,13 @@ def ring(parts):
 
 def funnel(today=None, days=FUNNEL_DAYS):
     """How far the leads that came in lately got: each counts for every stage up to the furthest it reached."""
-    today = today or timezone.localdate()
-    order = {stage.value: i for i, stage in enumerate(FUNNEL_STAGES)}
     since = timezone.now() - timedelta(days=days)
-    furthest = {pk: order.get(stage, 0) for pk, stage in
-                Lead.objects.filter(created_at__gte=since, is_junk=False).values_list("pk", "stage")}
+    return {**_funnel_for(Lead.objects.filter(created_at__gte=since, is_junk=False)), "days": days}
+
+
+def _funnel_for(leads):
+    order = {stage.value: i for i, stage in enumerate(FUNNEL_STAGES)}
+    furthest = {pk: order.get(stage, 0) for pk, stage in leads.values_list("pk", "stage")}
     for pk, before, after in (StageChange.objects.filter(lead__in=furthest).values_list("lead", "from_stage", "to_stage")):
         furthest[pk] = max(furthest[pk], order.get(before, 0), order.get(after, 0))
 
@@ -180,7 +191,8 @@ def funnel(today=None, days=FUNNEL_DAYS):
         worst = min(steps, key=lambda s: s[1]["count"] / s[0]["count"])
         note = (f"Biggest drop: only {worst[1]['share']}% of {worst[0]['label']} leads "
                 f"reach {worst[1]['label']}.")
-    return {"rows": rows, "total": first, "days": days, "note": note}
+    return {"rows": rows, "total": first, "note": note,
+            "worst_key": worst[1]["key"] if steps else "", "worst_from": worst[0]["label"] if steps else ""}
 
 
 def week_start(day):
@@ -260,6 +272,112 @@ def income_shares(limit=6):
         if len(clients) > 3:
             share = round(float(sum(c.monthly_fee for c in clients[:3])) * 100 / float(total))
             note = f"Your three biggest clients bring in {share}% of your {code} income."
+        tiles = [{"label": c.company, "url": c.get_absolute_url(), "text": format_money(c.monthly_fee, code),
+                  "value": float(c.monthly_fee),
+                  "share": round(float(c.monthly_fee) * 100 / float(total))} for c in clients]
+        top3 = round(float(sum(c.monthly_fee for c in clients[:3])) * 100 / float(total))
         panels.append({"code": code, "rows": rows, "note": note, "total": format_money(total, code),
-                       "count": len(clients), "more": max(len(clients) - limit, 0)})
+                       "count": len(clients), "more": max(len(clients) - limit, 0), "tiles": tiles, "top3": top3})
     return panels
+
+
+# ---- The Insights page ------------------------------------------------------------
+
+RANGES = (("month", "This month"), ("3", "Last 3 months"), ("12", "12 months"), ("custom", "Custom"))
+
+
+def insight_range(params, today=None):
+    """(key, first day, last day) for the page's date range. Bad or missing dates fall back to 12 months."""
+    today = today or timezone.localdate()
+    key = params.get("range", "12")
+    if key == "month":
+        return key, today.replace(day=1), today
+    if key == "3":
+        return key, month_start(today, 2), today
+    if key == "custom":
+        try:
+            first = date.fromisoformat(params.get("from", ""))
+            last = date.fromisoformat(params.get("to", ""))
+        except ValueError:
+            return "12", month_start(today, 11), today
+        if first <= last:
+            return key, first, last
+    return "12", month_start(today, 11), today
+
+
+def _ranked_rows(rows, limit=8):
+    rows = sorted(((label, n) for label, n in rows if n), key=lambda r: -r[1])
+    top = rows[0][1] if rows else 0
+    return [{"label": label, "count": n, "pct": round(n * 100 / top)} for label, n in rows[:limit]]
+
+
+def _leads_between(first, last):
+    return Lead.objects.filter(created_at__date__gte=first, created_at__date__lte=last, is_junk=False)
+
+
+def source_funnels(first, last):
+    """One funnel per lead source, biggest source first."""
+    leads = _leads_between(first, last)
+    names = {}
+    for name in leads.values_list("source__name", flat=True):
+        names[name] = names.get(name, 0) + 1
+    return [{"name": name, "funnel": _funnel_for(leads.filter(source__name=name))}
+            for name in sorted(names, key=lambda n: -names[n])]
+
+
+def win_loss_by_source(first, last):
+    """Won against lost per source, for leads that closed in the range."""
+    closed = Lead.objects.filter(stage__in=[Stage.WON, Stage.LOST], is_junk=False,
+                                 stage_entered_at__date__gte=first, stage_entered_at__date__lte=last)
+    counts = defaultdict(lambda: {"won": 0, "lost": 0})
+    for name, stage in closed.values_list("source__name", "stage"):
+        counts[name][stage] += 1
+    rows = []
+    for name, c in sorted(counts.items(), key=lambda kv: -(kv[1]["won"] + kv[1]["lost"])):
+        total = c["won"] + c["lost"]
+        rows.append({"label": name, "won": c["won"], "lost": c["lost"], "total": total,
+                     "rate": round(c["won"] * 100 / total)})
+    return rows
+
+
+def lost_reason_rows(first, last):
+    counts = defaultdict(int)
+    for name in (Lead.objects.filter(stage=Stage.LOST, is_junk=False, lost_reason__isnull=False,
+                                     stage_entered_at__date__gte=first, stage_entered_at__date__lte=last)
+                 .values_list("lost_reason__name", flat=True)):
+        counts[name] += 1
+    return _ranked_rows(counts.items())
+
+
+def stage_durations(first, last):
+    """Average days a lead spends in each stage before moving on."""
+    leads = dict(_leads_between(first, last).values_list("pk", "created_at"))
+    entered = {}
+    spent = defaultdict(list)
+    for pk, before, moved in (StageChange.objects.filter(lead__in=leads).order_by("lead", "changed_at")
+                              .values_list("lead", "from_stage", "changed_at")):
+        if before:
+            start = entered.get(pk, leads[pk])
+            spent[before].append(max((moved - start).total_seconds(), 0) / 86400)
+        entered[pk] = moved
+    rows = []
+    top = max((sum(v) / len(v) for v in spent.values()), default=0)
+    for stage in OPEN_STAGES:
+        values = spent.get(stage.value)
+        if values:
+            average = sum(values) / len(values)
+            rows.append({"label": Stage(stage).label, "count": f"{average:.1f} days",
+                         "pct": round(average * 100 / top) if top else 0})
+    return rows
+
+
+def first_contact(first, last):
+    """Average days from a lead coming in to the first real contact, and how many never heard from you."""
+    leads = dict(_leads_between(first, last).values_list("pk", "created_at"))
+    earliest = {}
+    for pk, when in (Activity.objects.filter(lead__in=leads).exclude(kind=ActivityKind.NOTE)
+                     .order_by("-occurred_at").values_list("lead", "occurred_at")):
+        earliest[pk] = when
+    days = [max((when - leads[pk]).total_seconds(), 0) / 86400 for pk, when in earliest.items()]
+    return {"average": round(sum(days) / len(days), 1) if days else None,
+            "contacted": len(days), "never": len(leads) - len(days)}

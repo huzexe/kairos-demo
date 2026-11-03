@@ -1,12 +1,31 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_not_required
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from .forms import AccountForm, AgencySettingsForm, InvoiceSettingsForm, PasswordChangeForm, SetupForm
 from .models import AgencySettings
+
+
+STYLEGUIDE_ICONS = [
+    "dashboard", "pipeline", "clients", "packages", "timeline", "follow-up", "invoice", "insights", "settings",
+    "search", "plus", "call", "meeting", "message", "note", "email", "instagram", "whatsapp", "video", "in-person",
+    "other", "referral", "ads", "outreach", "source", "hot", "cold", "junk", "lock", "export", "import", "backup",
+    "calendar", "check", "close", "drag", "more", "arrow-right", "chevron", "sort", "sun", "moon", "menu", "undo",
+    "warn", "logout",
+]
+
+
+@login_not_required
+def styleguide(request):
+    """Every component in every state. Development only (KAIROS_DEBUG=1)."""
+    if not settings.DEBUG:
+        raise Http404
+    return render(request, "styleguide.html", {"icons": STYLEGUIDE_ICONS})
 
 
 @login_not_required
@@ -36,6 +55,10 @@ def setup(request):
         messages.success(request, f"Welcome to Kairos, {agency.name}.")
         return redirect("home")
     return render(request, "core/setup.html", {"form": form})
+
+
+def settings_appearance(request):
+    return render(request, "core/settings_appearance.html", {"tab": "appearance"})
 
 
 @require_http_methods(["GET", "POST"])

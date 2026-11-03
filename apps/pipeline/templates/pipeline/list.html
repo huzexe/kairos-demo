@@ -2,82 +2,61 @@
 {% load kairos %}
 {% block title %}Leads{% endblock %}
 {% block heading %}Pipeline{% endblock %}
-{% block actions %}
-  <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
-{% endblock %}
+{% block actions %}<a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}">{% icon "plus" "16" %}New lead</a>{% endblock %}
 {% block content %}
-{% include "pipeline/_insights.html" with open=True %}
 {% include "pipeline/_toolbar.html" %}
-
-<div class="card">
-  {% if page.object_list %}
-  <form method="post" action="{% url 'pipeline:lead_bulk' %}" id="bulk-form">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-    <div class="bulk-bar">
-      <label class="check"><input type="checkbox" data-select-all aria-label="Select all leads on this page"> <span class="selected" data-selected>Select</span></label>
-      {% if filters.junk %}
-        <button class="btn btn-sm" type="submit" name="action" value="restore" data-needs-selection disabled><svg class="icon"><use href="#i-restore"/></svg> Restore</button>
-        <button class="btn btn-sm btn-danger" type="submit" name="action" value="delete" data-needs-selection disabled data-confirm="Delete the selected leads for good? This can’t be undone."><svg class="icon"><use href="#i-trash"/></svg> Delete for good</button>
-      {% else %}
-        <button class="btn btn-sm" type="submit" name="action" value="junk" data-needs-selection disabled><svg class="icon"><use href="#i-ban"/></svg> Mark as junk</button>
-      {% endif %}
-      <span class="spacer" style="flex:1"></span>
-      <span class="muted">{{ page.paginator.count }} lead{{ page.paginator.count|pluralize }}</span>
-    </div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr>
-          <th class="check-col"><span class="sr-only">Select</span></th>
-          <th>Lead</th><th>Stage</th><th>Hot / Cold</th><th class="hide-sm">Source</th><th>Value / mo</th><th class="hide-sm">Added</th>
-        </tr></thead>
-        <tbody>
-        {% for lead in page.object_list %}
-          <tr>
-            <td class="check-col"><input type="checkbox" name="ids" value="{{ lead.pk }}" aria-label="Select {{ lead.display_title }}"></td>
-            <td class="title-cell"><a href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a>{% if lead.company %}<div class="sub">{{ lead.name }}</div>{% endif %}</td>
-            <td><span class="stage-badge" data-stage="{{ lead.stage }}"><span class="dot"></span>{{ lead.get_stage_display }}</span>{% if lead.lost_reason %}<div class="sub muted" style="font-size:12.5px">{{ lead.lost_reason.name }}</div>{% endif %}</td>
-            <td><span class="tag tag-{{ lead.temperature }}"><span class="dot"></span>{{ lead.get_temperature_display }}</span></td>
-            <td class="hide-sm"><span class="tag">{{ lead.source.name }}</span></td>
-            <td class="nowrap">{% if lead.estimated_value %}{{ lead.estimated_value|money:lead.currency }}{% else %}<span class="muted">—</span>{% endif %}</td>
-            <td class="hide-sm nowrap muted">{{ lead.created_at|date:"j M Y" }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </form>
-  {% if page.has_other_pages %}
-  <div class="pagination">
-    <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
-    <span style="display:flex;gap:8px">
-      {% if page.has_previous %}<a class="btn btn-sm" href="{% query_with page=page.previous_page_number %}">Previous</a>{% endif %}
-      {% if page.has_next %}<a class="btn btn-sm" href="{% query_with page=page.next_page_number %}">Next</a>{% endif %}
-    </span>
+{% if page.object_list %}
+<form method="post" action="{% url 'pipeline:lead_bulk' %}" id="bulk-form" class="after-toolbar">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <div class="list-meta"><label class="check"><input type="checkbox" data-select-all aria-label="Select all leads on this page"> <span data-selected>Select all</span></label><span class="mono small">{{ page.paginator.count }} lead{{ page.paginator.count|pluralize }}</span></div>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th scope="col" class="edge"><span class="sr-only">Stage colour</span></th><th scope="col" class="pick"><span class="sr-only">Select</span></th><th scope="col">Lead</th><th scope="col">Stage</th><th scope="col">Hot / cold</th><th scope="col" class="hide-sm">Source</th><th scope="col" class="num">Value / mo</th><th scope="col" class="num hide-sm">Days in stage</th><th scope="col" class="num hide-sm">Added</th></tr></thead>
+    <tbody>{% for lead in page.object_list %}
+      <tr class="stage-{{ lead.stage }}">
+        <td class="edge"></td>
+        <td class="pick"><label class="check"><input type="checkbox" name="ids" value="{{ lead.pk }}" aria-label="Select {{ lead.display_title }}"></label></td>
+        <td class="title-cell"><a href="{{ lead.get_absolute_url }}" dir="auto">{{ lead.display_title }}</a>{% if lead.company %}<div class="sub" dir="auto">{{ lead.name }}</div>{% endif %}</td>
+        <td><span class="tag tag-stage">{{ lead.get_stage_display }}</span>{% if lead.lost_reason %}<div class="sub" dir="auto">{{ lead.lost_reason.name }}</div>{% endif %}</td>
+        <td>{% if lead.temperature == "hot" %}<span class="tag tag-hot">{% icon "hot" %}Hot</span>{% else %}<span class="tag">{% icon "cold" %}Cold</span>{% endif %}</td>
+        <td class="hide-sm"><span class="tag tag-quiet">{% icon lead.source.name|source_icon %}<span dir="auto">{{ lead.source.name }}</span></span></td>
+        <td class="num">{% if lead.estimated_value %}{{ lead.estimated_value|money:lead.currency }}{% else %}—{% endif %}</td>
+        <td class="num hide-sm">{{ lead.days_in_stage }}</td>
+        <td class="num hide-sm">{{ lead.created_at|date:"d M Y" }}</td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+  <div class="action-bar" data-bulk-bar hidden>
+    <span class="mono small" data-bulk-count>0 selected</span><span class="spacer"></span>
+    {% if filters.junk %}
+    <button class="btn btn-sm" type="submit" name="action" value="restore">{% icon "undo" "16" %}Restore</button>
+    <button class="btn btn-sm" type="submit" name="action" value="delete" data-confirm="Delete the selected leads for good? This can’t be undone.">{% icon "junk" "16" %}Delete for good</button>
+    {% else %}<button class="btn btn-sm" type="submit" name="action" value="junk">{% icon "junk" "16" %}Mark as junk</button>{% endif %}
   </div>
-  {% endif %}
-  {% else %}
-  <div class="empty">
-    <div class="empty-icon"><svg class="icon"><use href="#i-{% if filters.junk %}ban{% else %}list{% endif %}"/></svg></div>
-    {% if filters.junk %}<h2>No junk leads</h2><p>Leads you mark as junk show up here, out of your way.</p>
-    {% elif has_filters or stage_filter %}<h2>No leads match</h2><p>Try a different search or clear the filters.</p><a class="btn" href="{% url 'pipeline:list' %}">Clear filters</a>
-    {% else %}<h2>No leads yet</h2><p>Add your first lead from Instagram, a referral or your outreach.</p><a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg> New lead</a>{% endif %}
-  </div>
-  {% endif %}
+</form>
+{% include "includes/pagination.html" %}
+{% else %}
+<div class="empty after-toolbar">{% icon "pipeline" "24" %}
+  {% if filters.junk %}<h2 class="panel-title">No junk leads</h2><p class="muted">Leads you mark as junk show up here, out of your way.</p>
+  {% elif has_filters or stage_filter %}<h2 class="panel-title">No leads match</h2><p class="muted">Try a different search or clear the filters.</p><a class="btn" href="{% url 'pipeline:list' %}">Clear filters</a>
+  {% else %}<h2 class="panel-title">No leads yet</h2><p class="muted">Add your first lead from Instagram, a referral or your outreach.</p><a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}">{% icon "plus" "16" %}New lead</a>{% endif %}
 </div>
+{% endif %}
 {% endblock %}
 {% block scripts %}
 <script>
-  // Select-all checkbox and enabling the bulk buttons.
+  // Select-all checkbox and the bulk action bar.
   (function () {
     const form = document.getElementById("bulk-form");
     if (!form) return;
     const all = form.querySelector("[data-select-all]");
+    const bar = form.querySelector("[data-bulk-bar]");
     const boxes = () => [...form.querySelectorAll("input[name=ids]")];
     const update = () => {
       const n = boxes().filter((b) => b.checked).length;
-      form.querySelector("[data-selected]").textContent = n ? n + " selected" : "Select";
-      form.querySelectorAll("[data-needs-selection]").forEach((b) => { b.disabled = !n; });
+      bar.hidden = !n;
+      form.querySelector("[data-bulk-count]").textContent = n + " selected";
+      form.querySelector("[data-selected]").textContent = n ? n + " selected" : "Select all";
+      boxes().forEach((b) => b.closest("tr").classList.toggle("is-selected", b.checked));
       all.checked = n > 0 && n === boxes().length;
       all.indeterminate = n > 0 && n < boxes().length;
     };

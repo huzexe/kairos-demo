@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Follow-up{% endblock %}
-{% block crumb %}<span class="crumb"><a href="{% url 'activity:follow_ups' %}">Follow-ups</a> / <a href="{{ follow_up.subject.get_absolute_url }}">{% if follow_up.client_id %}{{ follow_up.client.company }}{% else %}{{ follow_up.lead.display_title }}{% endif %}</a></span>{% endblock %}
+{% block crumb %}<a href="{% url 'activity:follow_ups' %}">Follow-ups</a> / <a href="{{ follow_up.subject.get_absolute_url }}">{% if follow_up.client_id %}{{ follow_up.client.company }}{% else %}{{ follow_up.lead.display_title }}{% endif %}</a>{% endblock %}
 {% block heading %}Edit follow-up{% endblock %}
 {% block content %}
 <form method="post" class="card" style="max-width:640px" novalidate>

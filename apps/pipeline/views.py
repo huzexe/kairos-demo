@@ -4,19 +4,21 @@ from datetime import timedelta
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Count, ProtectedError, Q
+from django.db.models import Count, OuterRef, ProtectedError, Q, Subquery
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
+from apps.activity.models import FollowUp
 from apps.core.utils import safe_next
 
 from . import services
 from .forms import LeadForm, MoveForm, OrderedChoiceForm
 from .models import Lead, LeadSource, LostReason, Stage, Temperature
 
+STAGE_SHORT = {"new": "New", "discovery": "Call", "proposal": "Sent", "follow_up": "F-up", "won": "Won", "lost": "Lost"}
 CLOSED_WINDOWS = {"30": 30, "90": 90, "all": None}
 
 
@@ -56,14 +58,12 @@ def _filter_context(f):
     }
 
 
-def _insights():
-    from apps.dashboard import insights
-    return {"funnel": insights.funnel(), "weekly_leads": insights.weekly_leads()}
-
-
 def board(request):
     f = _filters(request)
-    leads = _filtered_leads(f).order_by("position", "-created_at")
+    next_follow_up = (FollowUp.objects.filter(lead=OuterRef("pk"), done_at__isnull=True)
+                      .order_by("due_date").values("due_date")[:1])
+    leads = (_filtered_leads(f).annotate(next_follow_up=Subquery(next_follow_up))
+             .order_by("position", "-created_at"))
 
     # Won and Lost columns only show recent leads, so the board stays usable
     # after months of work. "all" shows everything.
@@ -84,12 +84,13 @@ def board(request):
         for lead in cards:
             if lead.estimated_value:
                 totals[lead.currency] += lead.estimated_value
-        columns.append({"stage": value, "label": label, "leads": cards, "totals": dict(totals)})
+        columns.append({"stage": value, "label": label, "short": STAGE_SHORT[value], "leads": cards,
+                        "totals": dict(totals)})
 
     return render(request, "pipeline/board.html", {
-        **_insights(),
         "columns": columns,
         "lost_reasons": LostReason.objects.filter(is_active=True),
+        "today": timezone.localdate(),
         "view": "board",
         **_filter_context(f),
     })
@@ -103,7 +104,6 @@ def lead_list(request):
         leads = leads.filter(stage=stage)
     page = Paginator(leads, 50).get_page(request.GET.get("page"))
     return render(request, "pipeline/list.html", {
-        **_insights(),
         "page": page,
         "stage_filter": stage,
         "stages": Stage.choices,
@@ -141,6 +141,14 @@ def lead_detail(request, pk):
     if lead.stage == Stage.LOST:
         reached = next((c.from_stage for c in history if c.to_stage == Stage.LOST and c.from_stage), Stage.NEW)
     stage_index = track.index(reached) if reached in track else 0
+    next_stage = None
+    if lead.is_open and stage_index + 1 < len(track):
+        next_stage = {"value": track[stage_index + 1].value, "label": track[stage_index + 1].label}
+
+    # How long the lead spent in each stage; the latest one is still counting.
+    in_order = sorted(history, key=lambda c: c.changed_at)
+    for change, following in zip(in_order, [*in_order[1:], None]):
+        change.days_here = ((following.changed_at if following else timezone.now()) - change.changed_at).days
 
     from apps.activity import services as activity_services
     from apps.activity.forms import ActivityForm, FollowUpForm
@@ -156,6 +164,7 @@ def lead_detail(request, pk):
         "days_since_contact": activity_services.days_since(activity_services.last_contact(lead=lead)),
         "history": history,
         "stage_index": stage_index,
+        "next_stage": next_stage,
         "stages": Stage.choices,
         "lost_reasons": LostReason.objects.filter(is_active=True),
     })

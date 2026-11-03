@@ -1,8 +1,10 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.clients.models import Client
@@ -11,7 +13,7 @@ from apps.pipeline.models import Lead
 
 from . import services
 from .forms import ActivityForm, FollowUpForm
-from .models import Activity, FollowUp
+from .models import Activity, ActivityKind, Channel, FollowUp
 
 
 def _subject(kind, pk):
@@ -125,3 +127,32 @@ def follow_up_edit(request, pk):
 
 def follow_up_list(request):
     return render(request, "activity/follow_ups.html", {"buckets": services.follow_up_buckets()})
+
+
+def _date_param(request, name):
+    """A date from the URL, or None when it's missing or nonsense."""
+    try:
+        return parse_date(request.GET.get(name, ""))
+    except ValueError:
+        return None
+
+
+def timeline_list(request):
+    """Everything logged, across all leads and clients, newest first."""
+    entries = Activity.objects.select_related("lead", "client", "logged_by")
+    channel = request.GET.get("channel", "")
+    if channel in Channel.values:
+        entries = entries.filter(channel=channel)
+    kind = request.GET.get("kind", "")
+    if kind in ActivityKind.values:
+        entries = entries.filter(kind=kind)
+    since, until = _date_param(request, "from"), _date_param(request, "to")
+    if since:
+        entries = entries.filter(occurred_at__date__gte=since)
+    if until:
+        entries = entries.filter(occurred_at__date__lte=until)
+    return render(request, "activity/timeline.html", {
+        "page": Paginator(entries, 50).get_page(request.GET.get("page")),
+        "channels": Channel.choices, "kinds": ActivityKind.choices,
+        "channel": channel, "kind": kind, "since": since, "until": until,
+    })

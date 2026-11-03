@@ -52,6 +52,7 @@ def invoice_list(request):
         "page": page, "status": status, "q": q,
         "filters": [(key, label) for key, (label, _) in STATUS_FILTERS.items()],
         "unpaid_total": _totals(unpaid),
+        "unpaid_count": unpaid.count(),
         "overdue_total": _totals(unpaid.filter(due_date__lt=today)),
         "overdue_count": unpaid.filter(due_date__lt=today).count(),
         "paid_this_month": _totals(Invoice.objects.filter(

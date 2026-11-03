@@ -9,6 +9,7 @@
     <a href="{% url 'settings_list' 'lost-reasons' %}" class="{% if tab == 'reasons' %}is-active{% endif %}">Lost reasons</a>
     <a href="{% url 'settings_invoices' %}" class="{% if tab == 'invoices' %}is-active{% endif %}">Invoices</a>
     <a href="{% url 'settings_account' %}" class="{% if tab == 'account' %}is-active{% endif %}">Your account</a>
+    <a href="{% url 'settings_appearance' %}" class="{% if tab == 'appearance' %}is-active{% endif %}">Appearance</a>
   </nav>
   <div>{% block settings %}{% endblock %}</div>
 </div>

@@ -40,11 +40,6 @@ def _finding(*parts):
     return (", ".join(items[:-1]) + " and " + items[-1] if len(items) > 1 else items[0]) + "."
 
 
-def _greeting():
-    hour = timezone.localtime().hour
-    return "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
-
-
 def _stage_parts(stage_counts):
     return [{"key": s.value, "label": Stage(s).label, "count": stage_counts.get(s.value, 0)} for s in OPEN_STAGES]
 
@@ -104,17 +99,20 @@ def dashboard(request):
     due_follow_ups = buckets["overdue"] + buckets["today"]
 
     overdue_count = overdue.count()
+    contact_id = request.GET.get("contact", "")
+    contact_client = active.filter(pk=contact_id).first() if contact_id.isdigit() else None
     stage_counts = dict(open_leads.values_list("stage").annotate(n=Count("pk")))
 
     return render(request, "dashboard/dashboard.html", {
         "finding": _finding((overdue_count, "invoice overdue", "invoices overdue"),
                             (len(due_follow_ups), "follow-up due", "follow-ups due"),
                             (len(quiet), "client gone quiet", "clients gone quiet")),
-        "greeting": _greeting(),
         "money_panels": insights.money_panels(today),
         "funnel": insights.funnel(today),
         "weekly_leads": insights.weekly_leads(today),
-        "calendar": insights.activity_calendar(today),
+        "calendar": insights.activity_calendar(today, client=contact_client),
+        "contact_client": contact_client,
+        "contact_clients": active.order_by("company"),
         "income_panels": insights.income_shares(),
         "payment_ring": _payment_ring(active, today),
         "stage_ring": insights.ring(_stage_parts(stage_counts)),
@@ -137,6 +135,7 @@ def dashboard(request):
         "by_source": _ranked(by_source),
         "lost_reasons": _ranked(lost_reasons),
         "due_follow_ups": due_follow_ups[:8],
+        "has_overdue_follow_up": bool(buckets["overdue"]),
         "due_follow_ups_more": max(len(due_follow_ups) - 8, 0),
         "upcoming_count": len(buckets["upcoming"]),
         "quiet": quiet[:6],
@@ -144,4 +143,19 @@ def dashboard(request):
         "has_anything": Lead.objects.exists() or Client.objects.exists(),
         "stage_counts": stage_counts,
         "stages": [(s, Stage(s).label) for s in OPEN_STAGES],
+    })
+
+
+def insights_page(request):
+    today = timezone.localdate()
+    key, first, last = insights.insight_range(request.GET, today)
+    return render(request, "dashboard/insights.html", {
+        "range_key": key, "first": first, "last": last, "ranges": insights.RANGES,
+        "money_panels": insights.money_panels(today),
+        "income_panels": insights.income_shares(),
+        "source_funnels": insights.source_funnels(first, last),
+        "win_loss": insights.win_loss_by_source(first, last),
+        "lost_reasons": insights.lost_reason_rows(first, last),
+        "durations": insights.stage_durations(first, last),
+        "first_contact": insights.first_contact(first, last),
     })

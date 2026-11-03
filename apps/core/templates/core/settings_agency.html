@@ -10,7 +10,7 @@
         {% if agency.logo %}<img src="{{ agency.logo.url }}" alt="Your agency logo">{% else %}<span>{{ agency.name|first|upper|default:"K" }}</span>{% endif %}
       </div>
       <div class="profile-pic-actions">
-        <label class="label" for="{{ form.logo.id_for_label }}">Agency logo</label>
+        <label class="field-label" for="{{ form.logo.id_for_label }}">Agency logo</label>
         <p class="muted">PNG or JPG, up to 2 MB. It goes at the top of every invoice PDF.</p>
         <div class="profile-pic-buttons">
           <label class="btn btn-sm" for="{{ form.logo.id_for_label }}">{% if agency.logo %}Replace logo{% else %}Upload logo{% endif %}</label>

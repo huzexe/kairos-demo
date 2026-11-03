@@ -1,22 +1,21 @@
+{% load kairos %}
 {# Open follow-ups for a lead or client, with a small form to plan one. Needs: follow_ups, follow_up_form, follow_up_url #}
-<section class="card" id="follow-ups">
-  <div class="card-head"><div><h2>Follow-ups</h2>{% if days_since_contact is not None %}<p>Last contact {% if days_since_contact == 0 %}today{% elif days_since_contact == 1 %}yesterday{% else %}{{ days_since_contact }} days ago{% endif %}</p>{% else %}<p>No contact logged yet</p>{% endif %}</div></div>
-  {% if follow_ups %}
-  <ul class="fu-list">
+<section class="panel" id="follow-ups">
+  <h2 class="side-title">Follow-ups</h2>
+  <p class="mono small muted" style="margin-bottom:var(--s-8)">{% if days_since_contact is not None %}Last contact {% if days_since_contact == 0 %}today{% elif days_since_contact == 1 %}yesterday{% else %}{{ days_since_contact }} days ago{% endif %}{% else %}No contact logged yet{% endif %}</p>
+  {% if follow_ups %}<ul class="fu-items">
     {% for f in follow_ups %}
-    <li class="fu-row{% if f.is_overdue %} is-overdue{% elif f.is_today %} is-today{% endif %}">
+    <li class="crossoff fu-item"><div class="crossoff-body">
       <form method="post" action="{% url 'activity:follow_up_done' f.pk %}">{% csrf_token %}<input type="hidden" name="done" value="1"><input type="hidden" name="next" value="{{ request.path }}#follow-ups">
-        <button class="fu-check" type="submit" title="Mark as done" aria-label="Mark “{{ f.note }}” as done"><svg class="icon"><use href="#i-check"/></svg></button></form>
-      <div class="fu-text"><a href="{% url 'activity:follow_up_edit' f.pk %}?next={{ request.path|urlencode }}">{{ f.note }}</a>
-        <span class="fu-due">{% if f.is_overdue %}Overdue · {% elif f.is_today %}Today · {% endif %}{{ f.due_date|date:"D j M" }}</span></div>
-    </li>
+        <label class="check"><input type="checkbox" aria-label="Mark “{{ f.note }}” as done"><span class="crossoff-text"><span dir="auto">{{ f.note }}</span></span></label></form>
+      <div class="fu-under"><span class="mono small{% if f.is_overdue %} fu-late{% else %} muted{% endif %}">{{ f.due_date|date:"d M" }}{% if f.is_overdue %} · late{% elif f.is_today %} · today{% endif %}</span><a class="fu-action small" href="{% url 'activity:follow_up_edit' f.pk %}?next={{ request.path|urlencode }}">Reschedule</a></div>
+    </div></li>
     {% endfor %}
-  </ul>
-  {% endif %}
-  <form method="post" action="{{ follow_up_url }}" class="fu-add" novalidate>
+  </ul>{% endif %}
+  <form method="post" action="{{ follow_up_url }}" class="stack stack-8" style="margin-top:var(--s-12)" novalidate>
     {% csrf_token %}
-    <input type="date" name="due_date" value="{{ follow_up_form.due_date.value|date:'Y-m-d' }}" aria-label="Follow-up date" required>
-    <input type="text" name="note" maxlength="300" placeholder="What to do…" aria-label="What to do" required>
-    <button class="btn btn-sm" type="submit"><svg class="icon"><use href="#i-plus"/></svg> Plan</button>
+    <div class="field"><label class="sr-only" for="fu-date">Follow-up date</label><input id="fu-date" type="date" name="due_date" value="{{ follow_up_form.due_date.value|date:'Y-m-d' }}" required></div>
+    <div class="field"><label class="sr-only" for="fu-note">What to do</label><input id="fu-note" type="text" name="note" maxlength="300" dir="auto" placeholder="What to do…" required></div>
+    <button class="btn btn-sm" type="submit">{% icon "plus" "16" %}Plan follow-up</button>
   </form>
 </section>

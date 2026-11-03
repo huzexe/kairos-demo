@@ -1,0 +1,10 @@
+{% load kairos %}<li class="tl-item stage-{% if a.lead_id %}{{ a.lead.stage }}{% else %}won{% endif %}">
+  <span class="tl-mark" aria-hidden="true">{% icon a.kind|kind_icon "16" %}</span>
+  <div class="tl-body">
+    <div class="tl-meta"><b>{{ a.get_kind_display }}</b>{% if a.channel %} · {{ a.get_channel_display }}{% endif %}{% if a.contact_name %} · <span dir="auto">{{ a.contact_name }}</span>{% endif %}{% if subject_link %} · {% with s=a.subject %}<a href="{{ s.get_absolute_url }}" dir="auto">{% if a.client_id %}{{ s.company }}{% else %}{{ s.display_title }}{% endif %}</a>{% endwith %}{% endif %}
+      <span class="mono small muted">{{ a.occurred_at|date:"d M Y, H:i" }}</span>
+      {% if show_origin and a.lead_id %}<span class="tag tag-quiet">While a lead</span>{% endif %}
+      <a class="tl-edit" href="{% url 'activity:activity_edit' a.pk %}" aria-label="Edit this entry">Edit</a></div>
+    <div class="{% if a.kind == 'note' %}pinned-note {% endif %}notes-text" dir="auto">{{ a.summary }}</div>
+  </div>
+</li>

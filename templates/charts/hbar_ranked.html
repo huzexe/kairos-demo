@@ -1,0 +1,6 @@
+{% load kairos %}{% if has_data %}<ul class="hbars" aria-label="{{ label }}">
+  {% for r in rows %}<li class="hbar" data-tip="{{ r.label }}: {{ r.count }}" tabindex="0">
+    <span class="hbar-label">{% if icons %}{% icon r.label|source_icon %}{% endif %}<span dir="auto">{{ r.label }}</span></span><span class="hbar-value">{{ r.count }}</span>
+    <span class="hbar-track" aria-hidden="true"><span class="hbar-fill" style="width:{{ r.pct }}%"></span></span>
+  </li>{% endfor %}
+</ul>{% else %}{% include "charts/_empty.html" %}{% endif %}

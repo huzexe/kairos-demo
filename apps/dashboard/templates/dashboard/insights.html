@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static kairos kairos_charts %}
+{% block title %}Insights{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}">{% endblock %}
+{% block heading %}Insights{% endblock %}
+{% block summary %}{{ first|date:"d M Y" }} to {{ last|date:"d M Y" }}{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div class="switch" role="group" aria-label="Date range">{% for key, label in ranges %}{% if key != "custom" %}<a{% if range_key == key %} aria-current="true"{% endif %} href="?range={{ key }}">{{ label }}</a>{% endif %}{% endfor %}</div>
+  <form class="row row-8" method="get"><input type="hidden" name="range" value="custom">
+    <label class="sr-only" for="r-from">From</label><input class="input mono range-date" id="r-from" type="date" name="from" value="{{ first|date:'Y-m-d' }}">
+    <label class="sr-only" for="r-to">To</label><input class="input mono range-date" id="r-to" type="date" name="to" value="{{ last|date:'Y-m-d' }}">
+    <button class="btn btn-sm" type="submit">Custom</button></form>
+  {% if money_panels|length > 1 %}<div class="switch" role="group" aria-label="Currency">{% for p in money_panels %}<button type="button" data-currency="{{ p.code }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">{{ p.code }}</button>{% endfor %}</div>{% endif %}
+</div>
+<div class="today after-toolbar">
+  <div class="grid">
+    <section class="span-8 panel">
+      <div class="panel-head"><h2 class="panel-title">Billed vs collected</h2><span class="panel-sub">Last 12 months</span></div>
+      {% for p in money_panels %}<div data-currency-panel="{{ p.code }}"{% if not forloop.first %} hidden{% endif %}>{% paired_bar_chart p "Billed vs collected, 12 months" "Create an invoice" "/invoices/new/" %}{% if p.note %}<p class="chart-note">{{ p.note }}</p>{% endif %}</div>{% endfor %}
+    </section>
+    <section class="span-4 panel">
+      <div class="panel-head"><h2 class="panel-title">Time to first contact</h2></div>
+      {% if first_contact.average is not None %}<div class="tile-value">{{ first_contact.average }} <small>days on average</small></div>{% else %}<div class="tile-value">—</div>{% endif %}
+      <p class="tile-note" style="margin-top:var(--s-8)">{{ first_contact.contacted }} contacted · {{ first_contact.never }} not contacted yet</p>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2 class="panel-title">Funnel by source</h2></div>
+    {% if source_funnels %}<div class="multiples">{% for s in source_funnels %}<div class="multiple"><h3 class="side-title" dir="auto">{{ s.name }}</h3>{% funnel s.funnel s.name %}</div>{% endfor %}</div>
+    {% else %}{% include "charts/_empty.html" with label="Funnel by source" action="Log your first lead" url="/pipeline/leads/new/" %}{% endif %}
+  </section>
+  <div class="grid">
+    <section class="span-4 panel">
+      <div class="panel-head"><h2 class="panel-title">Win and loss by source</h2></div>
+      {% if win_loss %}<ul class="stack-list">{% for r in win_loss %}<li class="winloss"><span dir="auto">{{ r.label }}</span><b>{{ r.won }} won · {{ r.lost }} lost · {{ r.rate }}%</b></li>{% endfor %}</ul>{% else %}<p class="muted">Nothing closed in this range.</p>{% endif %}
+    </section>
+    <section class="span-4 panel"><div class="panel-head"><h2 class="panel-title">Lost reasons</h2></div>{% hbar_ranked lost_reasons "Lost reasons" %}</section>
+    <section class="span-4 panel"><div class="panel-head"><h2 class="panel-title">Average days per stage</h2></div>{% hbar_ranked durations "Average days per stage" %}</section>
+  </div>
+  <section class="panel">
+    <div class="panel-head"><h2 class="panel-title">Client concentration</h2></div>
+    {% for p in income_panels %}<div data-currency-panel="{{ p.code }}"{% if not forloop.first %} hidden{% endif %}>{% treemap p.tiles "Where recurring income comes from" %}<p class="small" style="margin-block:var(--s-16) var(--s-8)">Your three biggest clients bring in <b class="mono">{{ p.top3 }}%</b> of your {{ p.code }} income.</p>{% meter p.top3 "Share of income from the top three clients" %}</div>{% empty %}{% include "charts/_empty.html" with label="Client concentration" action="Add a client" url="/clients/new/" %}{% endfor %}
+  </section>
+  {% if not features.import_export %}{% include "includes/locked.html" with name="Excel and CSV export" text="Download your leads, clients, invoices and payments as a spreadsheet." %}{% endif %}
+</div>
+{% endblock %}

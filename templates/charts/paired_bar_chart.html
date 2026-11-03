@@ -1,0 +1,9 @@
+{% if has_data %}<figure class="chart" aria-label="{{ label }}, {{ code }}">
+  <ul class="chart-key" aria-hidden="true"><li><i class="bar-soft-2" style="--key:var(--bone);border:1px solid var(--graphite)"></i>Billed</li><li><i></i>Collected</li><li>{{ code }}</li></ul>
+  <div class="bars has-ticks" style="--chart-h:260px" aria-hidden="true">
+    <div class="bars-grid">{% for t in ticks %}{% if t.pct %}<span style="bottom:{{ t.pct }}%"><b>{{ t.label }}</b></span>{% endif %}{% endfor %}</div>
+    {% for m in months %}<div class="bar-slot" data-tip="{{ m.tip }}" tabindex="0"><span class="bar bar-soft-2" style="height:{{ m.billed_pct }}%"></span><span class="bar" style="height:{{ m.collected_pct }}%"></span></div>{% endfor %}
+  </div>
+  <div class="bars-x has-ticks" aria-hidden="true">{% for m in months %}<span>{{ m.label }}</span>{% endfor %}</div>
+  <div class="sr-only"><table><caption>{{ label }}, {{ code }}</caption><thead><tr><th scope="col">Month</th><th scope="col">Billed</th><th scope="col">Collected</th></tr></thead><tbody>{% for m in months %}<tr><th scope="row">{{ m.full }}</th><td>{{ m.billed }}</td><td>{{ m.collected }}</td></tr>{% endfor %}</tbody></table></div>
+</figure>{% else %}{% include "charts/_empty.html" %}{% endif %}

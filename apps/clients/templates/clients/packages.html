@@ -2,32 +2,23 @@
 {% load kairos %}
 {% block title %}Packages{% endblock %}
 {% block heading %}Packages{% endblock %}
-{% block actions %}
-  <a class="btn btn-primary" href="{% url 'clients:package_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New package</span></a>
-{% endblock %}
+{% block actions %}<a class="btn btn-primary" href="{% url 'clients:package_create' %}">{% icon "plus" "16" %}New package</a>{% endblock %}
 {% block content %}
 {% if packages %}
-<div class="package-grid">
+<div class="poster-grid">
   {% for p in packages %}
-  <a class="card package-card{% if not p.is_active %} is-retired{% endif %}" href="{{ p.get_absolute_url }}">
-    <div class="package-top">
-      <h2>{{ p.name }}</h2>
-      {% if not p.is_active %}<span class="tag tag-junk tag-sm">Not offered</span>{% endif %}
-    </div>
-    <div class="package-price">{{ p.price|money:p.currency }}<span>/month</span></div>
-    {% if p.description %}<p class="muted">{{ p.description }}</p>{% endif %}
-    <ul class="package-items">{% for item in p.items.all %}<li><svg class="icon"><use href="#i-check"/></svg>{{ item.label_text }}</li>{% endfor %}</ul>
-    <div class="package-foot muted">{{ p.n_clients }} active client{{ p.n_clients|pluralize }}</div>
+  <a class="poster-card{% if not p.is_active %} is-retired{% endif %}" href="{{ p.get_absolute_url }}">
+    <div class="poster-top"><h2 dir="auto">{{ p.name }}</h2>{% if not p.is_active %}<span class="tag tag-quiet">Not offered</span>{% endif %}</div>
+    <div class="poster-price">{{ p.price|money:p.currency }}<small> / month</small></div>
+    {% if p.description %}<p class="small muted" dir="auto">{{ p.description }}</p>{% endif %}
+    <ul class="poster-items">{% for item in p.items.all %}<li><b>{{ item.quantity }}</b><span dir="auto">{% if item.kind == 'other' and item.custom_label %}{{ item.custom_label }}{% else %}{{ item.get_kind_display }}{% endif %}</span></li>{% endfor %}</ul>
+    <div class="poster-foot mono small">{{ p.n_clients }} active client{{ p.n_clients|pluralize }}</div>
   </a>
   {% endfor %}
 </div>
-<p class="muted" style="margin-top:14px;font-size:13px">Paid ads aren’t part of packages — add them as a separate line on the client’s invoice.</p>
+<p class="caption" style="margin-top:var(--s-16)">Paid ads aren’t part of packages. Add them as a separate line on the client’s invoice.</p>
 {% else %}
-<div class="card"><div class="empty">
-  <div class="empty-icon"><svg class="icon"><use href="#i-package"/></svg></div>
-  <h2>No packages yet</h2>
-  <p>Set up the monthly packages you sell — for example “Starter: 12 posts + 4 reels”. They’re used for clients and invoices.</p>
-  <a class="btn btn-primary" href="{% url 'clients:package_create' %}"><svg class="icon"><use href="#i-plus"/></svg> New package</a>
-</div></div>
+<div class="empty">{% icon "packages" "24" %}<h2 class="panel-title">No packages yet</h2><p class="muted">Set up the monthly packages you sell, for example “Starter: 12 posts + 4 reels”. They’re used for clients and invoices.</p><a class="btn btn-primary" href="{% url 'clients:package_create' %}">{% icon "plus" "16" %}New package</a></div>
 {% endif %}
+{% if not features.custom_packages %}<div style="margin-top:var(--s-24)">{% include "includes/locked.html" with name="Custom packages, add-ons and billing plans" text="Build a one-off package for any client, sell add-ons, and bill monthly, quarterly, every 6 months or yearly." %}</div>{% endif %}
 {% endblock %}

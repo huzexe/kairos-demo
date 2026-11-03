@@ -1,0 +1,4 @@
+<div class="ring" role="img" aria-label="{{ label }}: {{ text }}">
+  <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-track" cx="50" cy="50" r="42"/>{% if pct %}<circle class="ring-fill" cx="50" cy="50" r="42" pathLength="100" stroke-dasharray="{{ pct }} 100"/>{% endif %}</svg>
+  <span class="ring-value" aria-hidden="true">{{ text }}</span>
+</div>

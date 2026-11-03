@@ -2,31 +2,47 @@
 {% block title %}Set up Kairos{% endblock %}
 {% block content %}
 <h1>Set up your workspace</h1>
-<p class="lead">This takes a minute. You’ll be the owner, with full access.</p>
-<form method="post" novalidate>
+<ol class="stepper" aria-label="Setup steps">
+  <li class="stage-discovery" data-step-mark><span>1</span> Agency</li>
+  <li class="stage-proposal" data-step-mark><span>2</span> Currency</li>
+  <li class="stage-won" data-step-mark><span>3</span> Account</li>
+</ol>
+<form method="post" class="stack" id="setup-form" novalidate>
   {% csrf_token %}
   {% include "includes/form_errors.html" %}
-  <div class="section-label">Your agency</div>
-  {% include "includes/field.html" with field=form.agency_name %}
-  {% include "includes/field.html" with field=form.default_currency %}
-  {% include "includes/field.html" with field=form.timezone %}
-  <div class="section-label">Your sign-in</div>
-  {% include "includes/field.html" with field=form.username %}
-  {% include "includes/field.html" with field=form.email %}
-  {% include "includes/field.html" with field=form.password1 %}
-  {% include "includes/field.html" with field=form.password2 %}
-  <button class="btn btn-primary btn-block" type="submit">Create workspace</button>
+  <fieldset class="stack" data-step><legend class="side-title">Your agency</legend>{% include "includes/field.html" with field=form.agency_name %}</fieldset>
+  <fieldset class="stack" data-step><legend class="side-title">Currency and time zone</legend>{% include "includes/field.html" with field=form.default_currency %}{% include "includes/field.html" with field=form.timezone %}</fieldset>
+  <fieldset class="stack" data-step><legend class="side-title">Your sign-in</legend>{% include "includes/field.html" with field=form.username %}{% include "includes/field.html" with field=form.email %}{% include "includes/field.html" with field=form.password1 %}{% include "includes/field.html" with field=form.password2 %}</fieldset>
+  <div class="row between"><button class="btn btn-ghost" type="button" data-step-back hidden>Back</button><span class="spacer"></span><button class="btn btn-primary" type="button" data-step-next hidden>Next</button><button class="btn btn-primary" type="submit" data-step-submit>Create workspace</button></div>
 </form>
 {% endblock %}
 {% block scripts %}
-{% if not form.is_bound %}
 <script>
-  // Pre-select this computer's time zone.
+  // One step at a time. Without JavaScript every step simply shows at once.
   (function () {
+    const steps = [...document.querySelectorAll("[data-step]")];
+    const marks = [...document.querySelectorAll("[data-step-mark]")];
+    const back = document.querySelector("[data-step-back]");
+    const next = document.querySelector("[data-step-next]");
+    const submit = document.querySelector("[data-step-submit]");
+    const withError = steps.findIndex((s) => s.querySelector(".has-error"));
+    let at = withError >= 0 ? withError : 0;
+    const show = () => {
+      steps.forEach((s, i) => { s.hidden = i !== at; });
+      marks.forEach((m, i) => m.classList.toggle("is-done", i <= at));
+      back.hidden = at === 0;
+      next.hidden = at === steps.length - 1;
+      submit.hidden = at !== steps.length - 1;
+    };
+    next.addEventListener("click", () => { at += 1; show(); steps[at].querySelector("input, select").focus(); });
+    back.addEventListener("click", () => { at -= 1; show(); });
+    show();
+    {% if not form.is_bound %}
+    // Pre-select this computer's time zone.
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const select = document.getElementById("id_timezone");
     if (tz && select && [...select.options].some((o) => o.value === tz)) select.value = tz;
+    {% endif %}
   })();
 </script>
-{% endif %}
 {% endblock %}

@@ -1,0 +1,85 @@
+.board-page .toolbar { padding-inline: var(--s-24); }
+.drawer-link { color: inherit; }
+.drawer-close { color: inherit; }
+/* Pipeline board: six solid stage columns, cards with ageing bars. */
+
+.stage-strip { display: none; }
+
+.board-page .board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(184px, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: var(--s-4);
+  margin-top: var(--s-16);
+  padding: 0 var(--s-24) var(--s-24);
+  overflow-x: auto;
+  align-items: stretch;
+}
+.column { display: grid; grid-row: span 2; grid-template-rows: subgrid; min-width: 0; min-height: 60vh; background: var(--bone-2); }
+.column-head { padding: var(--s-12); background: var(--stage); color: var(--on-stage); }
+.column-title { display: flex; align-items: baseline; gap: var(--s-8); }
+.column-title h2 { flex: 1; min-width: 0; font-size: var(--text-18); font-weight: 800; line-height: 1.2; }
+.column-title .count { font-family: var(--font-mono); font-size: var(--text-18); font-weight: 600; }
+.column-title .add { display: grid; place-items: center; align-self: center; width: 24px; height: 24px; color: inherit; }
+.column-title .add:hover { outline: 1px solid currentColor; }
+.column-total { min-height: 18px; font-family: var(--font-mono); font-size: var(--text-13); font-variant-numeric: tabular-nums; }
+
+.cards { flex: 1; display: flex; flex-direction: column; gap: var(--s-4); min-height: 96px; padding: var(--s-4); }
+
+.lead-card { position: relative; display: flex; flex-direction: column; gap: var(--s-8); padding: var(--s-8) var(--s-8) 0; background: var(--bone); border: 1px solid var(--graphite); cursor: grab; }
+.lead-card .title { padding-inline-end: var(--s-48); font-family: var(--font-display); font-size: var(--text-18); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; text-decoration: none; }
+.lead-card .title:hover { text-decoration: underline; }
+.lead-card .sub { margin-top: -6px; color: var(--graphite-2); font-size: var(--text-13); }
+.lead-card .tags { display: flex; flex-wrap: wrap; gap: var(--s-4); }
+.lead-card .tag { min-height: 22px; max-width: 100%; overflow: hidden; font-size: var(--text-11); padding-inline: var(--s-4); }
+.lead-card .foot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-8); font-family: var(--font-mono); font-size: var(--text-13); font-variant-numeric: tabular-nums; }
+.lead-card .value { font-weight: 600; }
+.lead-card .value small { font-weight: 400; }
+.lead-card .age { color: var(--graphite-2); white-space: nowrap; }
+.lead-card .next-fu { display: flex; align-items: center; gap: var(--s-4); color: var(--graphite-2); font-family: var(--font-mono); font-size: var(--text-11); }
+.lead-card .next-fu.is-late { color: var(--danger-text); font-weight: 600; }
+.lead-card .ageing { margin-inline: calc(var(--s-8) * -1); }
+.lead-card .won-convert { display: inline-flex; align-items: center; gap: var(--s-4); font-size: var(--text-13); font-weight: 600; white-space: nowrap; }
+.lead-card .lost-why { color: var(--graphite-2); font-size: var(--text-13); }
+.card-actions { position: absolute; top: var(--s-4); inset-inline-end: var(--s-4); display: flex; }
+.junk-btn, .card-menu summary { display: grid; place-items: center; width: 28px; height: 28px; background: var(--bone); border: 0; list-style: none; cursor: pointer; opacity: 0; transition: opacity var(--fast) var(--ease); }
+.card-menu summary::-webkit-details-marker { display: none; }
+.card-menu { position: relative; }
+.card-menu .menu { z-index: 45; min-width: 168px; top: calc(100% + var(--s-4)); }
+.lead-card:hover .junk-btn, .lead-card:hover .card-menu summary, .junk-btn:focus-visible, .card-menu summary:focus-visible, .card-menu[open] summary { opacity: 1; }
+.junk-btn:hover, .card-menu summary:hover, .card-menu[open] summary { background: var(--graphite); color: var(--bone); }
+.lead-card.is-saving { opacity: 0.6; }
+
+/* Dragging: the card lifts, the target shows a dashed slot */
+.sortable-drag { box-shadow: var(--hard-shadow); transform: rotate(1.5deg); opacity: 1 !important; cursor: grabbing; }
+.sortable-ghost { background: transparent; border: 1px dashed var(--graphite); }
+.sortable-ghost > * { visibility: hidden; }
+
+.reason-list { display: flex; flex-direction: column; gap: var(--s-8); margin-bottom: var(--s-16); }
+
+@media (hover: none) { .junk-btn, .card-menu summary { opacity: 1; } }
+
+@media (max-width: 767px) {
+        .stage-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 2px; margin-top: var(--s-12); padding-inline: var(--s-16); }
+  .stage-strip a { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; line-height: 1.2; background: var(--stage); color: var(--on-stage); font-family: var(--font-mono); font-size: var(--text-13); font-weight: 600; text-decoration: none; }
+  .board { grid-auto-columns: calc(100vw - var(--s-32)); gap: var(--s-16); margin-top: var(--s-8); padding: 0 var(--s-16) var(--s-16); scroll-snap-type: x mandatory; scroll-padding-inline: var(--s-16); }
+  .column { min-height: 56vh; scroll-snap-align: start; }
+  .stage-strip small { font-size: var(--text-11); font-weight: 500; }
+  .junk-btn, .card-menu summary { width: 44px; height: 44px; }
+  .lead-card .title { display: flex; align-items: center; min-height: 44px; padding-inline-end: 92px; }
+  .lead-card .sub { margin-top: -10px; }
+  .won-convert { min-height: 44px; }
+      .column-title .add { width: 44px; height: 44px; margin-block: -10px; }
+}
+
+/* ---- Soft corners ---- */
+.column { border-radius: var(--radius-lg); }
+.column-head { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.lead-card { border-radius: var(--radius); }
+.lead-card .ageing { overflow: hidden; border-radius: 0 0 9px 9px; }
+.lead-card .ageing > span { border-radius: 0; }
+.junk-btn, .card-menu summary { border-radius: var(--radius-sm); }
+.stage-strip a { border-radius: var(--radius); }
+.column-title .add { border-radius: var(--radius-sm); }
+@media (max-width: 767px) { .board-page .toolbar { padding-inline: var(--s-16); } }

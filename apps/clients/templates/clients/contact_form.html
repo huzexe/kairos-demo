@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Edit {{ contact.name }}{% endblock %}
-{% block crumb %}<span class="crumb"><a href="{% url 'clients:list' %}">Clients</a> / <a href="{{ contact.client.get_absolute_url }}">{{ contact.client.company }}</a></span>{% endblock %}
+{% block crumb %}<a href="{% url 'clients:list' %}">Clients</a> / <a href="{{ contact.client.get_absolute_url }}">{{ contact.client.company }}</a>{% endblock %}
 {% block heading %}Edit contact{% endblock %}
 {% block content %}
 <form method="post" class="card" style="max-width:640px" novalidate>

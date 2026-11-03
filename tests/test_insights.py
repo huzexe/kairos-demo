@@ -146,10 +146,10 @@ def test_client_page_shows_their_contact_calendar(client_in, make_client):
     assert page.context["calendar"]["total"] == 1 and "Contact with Glow" in page.content.decode()
 
 
-def test_dashboard_greets_and_switches_currency(client_in, make_client):
+def test_dashboard_switches_currency(client_in, make_client):
     make_client("Dollar Co", monthly_fee=10, currency="USD")
     html = client_in.get("/").content.decode()
-    assert "Good " in html and 'data-currency="USD"' in html and 'data-currency-panel="USD"' in html
+    assert 'data-currency="USD"' in html and 'data-currency-panel="USD"' in html
 
 
 # ---- The agency logo ---------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 <form class="toolbar" method="get" role="search">
   <label class="search">
     <span class="sr-only">Search leads</span>
-    <svg class="icon"><use href="#i-search"/></svg>
+    {% icon "search" "16" %}
     <input class="input" type="search" name="q" value="{{ filters.q }}" placeholder="Search name, company, phone…">
   </label>
   <select class="input" name="source" data-autosubmit aria-label="Lead source">
@@ -30,15 +30,15 @@
   <noscript><button class="btn btn-sm" type="submit">Apply</button></noscript>
   <span class="spacer"></span>
   {% if filters.junk %}
-    <a class="junk-link" href="{% if view == 'board' %}{% url 'pipeline:board' %}{% else %}{% url 'pipeline:list' %}{% endif %}"><svg class="icon"><use href="#i-arrow-left"/></svg> Back to leads</a>
+    <a class="junk-link" href="{% if view == 'board' %}{% url 'pipeline:board' %}{% else %}{% url 'pipeline:list' %}{% endif %}">{% icon "undo" "16" %} Back to leads</a>
   {% else %}
-    <a class="junk-link" href="{% query_with junk=1 page='' %}"><svg class="icon"><use href="#i-ban"/></svg> Junk ({{ junk_count }})</a>
+    <a class="junk-link" href="{% query_with junk=1 page='' %}">{% icon "junk" "16" %} Junk ({{ junk_count }})</a>
   {% endif %}
   <div class="view-switch" role="group" aria-label="View">
-    <a href="{% url 'pipeline:board' %}{% query_with stage='' page='' %}" class="{% if view == 'board' %}is-active{% endif %}"><svg class="icon"><use href="#i-kanban"/></svg><span class="hide-sm">Board</span></a>
-    <a href="{% url 'pipeline:list' %}{% query_with closed='' %}" class="{% if view == 'list' %}is-active{% endif %}"><svg class="icon"><use href="#i-list"/></svg><span class="hide-sm">List</span></a>
+    <a href="{% url 'pipeline:board' %}{% query_with stage='' page='' %}" class="{% if view == 'board' %}is-active{% endif %}">{% icon "pipeline" "16" %}<span class="hide-sm">Board</span></a>
+    <a href="{% url 'pipeline:list' %}{% query_with closed='' %}" class="{% if view == 'list' %}is-active{% endif %}">{% icon "menu" "16" %}<span class="hide-sm">List</span></a>
   </div>
 </form>
 {% if filters.junk %}
-<div class="filter-note"><svg class="icon"><use href="#i-ban"/></svg> You’re looking at junk leads. They’re hidden everywhere else. Restore one to bring it back.</div>
+<div class="filter-note">{% icon "junk" "16" %} You’re looking at junk leads. They’re hidden everywhere else. Restore one to bring it back.</div>
 {% endif %}

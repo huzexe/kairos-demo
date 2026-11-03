@@ -1,23 +1,22 @@
 {% extends "base.html" %}
 {% load static kairos %}
 {% block title %}Pipeline{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'css/pages/pipeline.css' %}">{% endblock %}
 {% block heading %}Pipeline{% endblock %}
-{% block content_class %} is-wide{% endblock %}
-{% block actions %}
-  <a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}"><svg class="icon"><use href="#i-plus"/></svg><span class="label">New lead</span></a>
-{% endblock %}
+{% block content_class %} is-wide board-page{% endblock %}
+{% block actions %}<a class="btn btn-primary" href="{% url 'pipeline:lead_create' %}">{% icon "plus" "16" %}New lead</a>{% endblock %}
 {% block content %}
-<div style="padding-right:var(--pad)">{% include "pipeline/_insights.html" %}{% include "pipeline/_toolbar.html" %}</div>
+{% include "pipeline/_toolbar.html" %}
+<nav class="stage-strip" aria-label="Jump to a stage">{% for col in columns %}<a class="stage-{{ col.stage }}" href="#column-{{ col.stage }}" aria-label="{{ col.label }}, {{ col.leads|length }} lead{{ col.leads|length|pluralize }}"><small aria-hidden="true">{{ col.short }}</small><span aria-hidden="true">{{ col.leads|length }}</span></a>{% endfor %}</nav>
 
 <div class="board" id="board" data-move-url="{% url 'pipeline:lead_move' 0 %}" {% if filters.junk %}data-readonly{% endif %}>
   {% for col in columns %}
-  <section class="column" data-stage="{{ col.stage }}" aria-label="{{ col.label }}">
+  <section class="column stage-{{ col.stage }}" id="column-{{ col.stage }}" data-stage="{{ col.stage }}" aria-label="{{ col.label }}">
     <header class="column-head">
       <div class="column-title">
-        <span class="dot" style="background:var(--stage-color)"></span>
         <h2>{{ col.label }}</h2>
         <span class="count" data-count>{{ col.leads|length }}</span>
-        {% if not filters.junk %}<a class="add" href="{% url 'pipeline:lead_create' %}?stage={{ col.stage }}" title="Add a lead to {{ col.label }}" aria-label="Add a lead to {{ col.label }}"><svg class="icon"><use href="#i-plus"/></svg></a>{% endif %}
+        {% if not filters.junk %}<a class="add" href="{% url 'pipeline:lead_create' %}?stage={{ col.stage }}" title="Add a lead to {{ col.label }}" aria-label="Add a lead to {{ col.label }}">{% icon "plus" "16" %}</a>{% endif %}
       </div>
       <div class="column-total" data-total>{{ col.totals|totals }}</div>
     </header>
@@ -27,6 +26,14 @@
 </div>
 
 {% include "pipeline/_lost_dialog.html" %}
+<dialog class="drawer" id="lead-drawer" aria-labelledby="drawer-title">
+  <div class="drawer-head">
+    <div class="row between"><span class="section-label" data-drawer-stage></span>
+      <span class="row row-8"><a class="drawer-link small" data-drawer-open href="#">Open full page</a><button class="btn btn-ghost btn-icon drawer-close" type="button" data-close aria-label="Close">{% icon "close" %}</button></span></div>
+    <h2 id="drawer-title" data-drawer-title dir="auto"></h2>
+  </div>
+  <div class="dialog-body" data-drawer-body></div>
+</dialog>
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'vendor/Sortable.min.js' %}"></script>

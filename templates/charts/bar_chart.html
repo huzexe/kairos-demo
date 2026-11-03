@@ -1,0 +1,7 @@
+{% if has_data %}<figure class="chart" aria-label="{{ label }}">
+  <div class="bars{% if accent %} has-accent{% endif %}" aria-hidden="true">
+    {% for r in rows %}<div class="bar-slot{% if r.current %} is-current{% else %} is-past{% endif %}" data-tip="{{ r.tip }}" tabindex="0" style="--h:{{ r.pct }}%"><span class="bar" style="height:{{ r.pct }}%"></span>{% if r.current or r == peak %}<span class="bar-value">{{ r.count }}</span>{% endif %}</div>{% endfor %}
+  </div>
+  <div class="bars-x is-sparse" aria-hidden="true">{% for r in rows %}<span>{{ r.label }}</span>{% endfor %}</div>
+  <div class="sr-only"><table><caption>{{ label }}</caption><tbody>{% for r in rows %}<tr><th scope="row">{{ r.label }}</th><td>{{ r.count }}</td></tr>{% endfor %}</tbody></table></div>
+</figure>{% else %}{% include "charts/_empty.html" %}{% endif %}

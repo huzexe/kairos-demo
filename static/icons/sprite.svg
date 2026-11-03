@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="dashboard" viewBox="0 0 24 24"><path d="M3 3h11v8H3zM18 3h3v8h-3zM3 15h3v6H3zM10 15h11v6H10z"/></symbol>
+  <symbol id="pipeline" viewBox="0 0 24 24"><path d="M3 3h5v18H3zM11 3h4v12h-4zM18 3h3v7h-3z"/></symbol>
+  <symbol id="clients" viewBox="0 0 24 24"><path d="M8 3h8v8H8zM4 21v-6h16v6"/></symbol>
+  <symbol id="packages" viewBox="0 0 24 24"><path d="M3 8h18v13H3zM3 8l3-5h12l3 5M10 13h4"/></symbol>
+  <symbol id="timeline" viewBox="0 0 24 24"><path d="M6 3v18M3 6h6M3 12h6M3 18h6M13 6h8M13 12h8M13 18h5"/></symbol>
+  <symbol id="follow-up" viewBox="0 0 24 24"><path d="M6 17V9l3-6h6l3 6v8M3 17h18M10 21h4"/></symbol>
+  <symbol id="invoice" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2zM9 8h6M9 13h6"/></symbol>
+  <symbol id="insights" viewBox="0 0 24 24"><path d="M3 3v18h18M8 17v-5M13 17V7M18 17V9"/></symbol>
+  <symbol id="settings" viewBox="0 0 24 24"><path d="M3 7h10M19 7h2M13 4h6v6h-6zM3 17h2M11 17h10M5 14h6v6H5z"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><path d="M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16 16l5 5"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="call" viewBox="0 0 24 24"><path d="M4 3h5l2 6-3 2a11 11 0 0 0 5 5l2-3 6 2v5l-2 1C10 21 3 14 3 5z"/></symbol>
+  <symbol id="meeting" viewBox="0 0 24 24"><path d="M6 3h4v4H6zM14 3h4v4h-4zM3 11h18M6 11v10M18 11v10"/></symbol>
+  <symbol id="message" viewBox="0 0 24 24"><path d="M3 4h18v13H10l-5 4v-4H3z"/></symbol>
+  <symbol id="note" viewBox="0 0 24 24"><path d="M4 3h16v12l-6 6H4zM20 15h-6v6"/></symbol>
+  <symbol id="email" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 6l9 7 9-7"/></symbol>
+  <symbol id="instagram" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM17 7h.01"/></symbol>
+  <symbol id="whatsapp" viewBox="0 0 24 24"><path d="M3 21l1.500-5A9 9 0 1 1 8 19.500zM9 8l1 3-1 1a6 6 0 0 0 3 3l1-1 3 1"/></symbol>
+  <symbol id="video" viewBox="0 0 24 24"><path d="M3 6h13v12H3zM16 10l5-3v10l-5-3"/></symbol>
+  <symbol id="in-person" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-6 6c0 5 6 12 6 12s6-7 6-12a6 6 0 0 0-6-6zM12 8v2"/></symbol>
+  <symbol id="other" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 12h.01M12 12h.01M16 12h.01"/></symbol>
+  <symbol id="referral" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 14h7v7h-7zM10 7h7v7"/></symbol>
+  <symbol id="ads" viewBox="0 0 24 24"><path d="M3 10v4l15 5V5zM7 15.500V21h4v-4"/></symbol>
+  <symbol id="outreach" viewBox="0 0 24 24"><path d="M21 3L3 10l7 4 4 7zM10 14l5-5"/></symbol>
+  <symbol id="source" viewBox="0 0 24 24"><path d="M3 3h9l9 9-9 9-9-9zM8 8h.01"/></symbol>
+  <symbol id="hot" viewBox="0 0 24 24"><path d="M13 2l5 8v5a6 6 0 0 1-12 0v-4l3 2z"/></symbol>
+  <symbol id="cold" viewBox="0 0 24 24"><path d="M12 3v18M4.200 7.500l15.600 9M19.800 7.500l-15.600 9"/></symbol>
+  <symbol id="junk" viewBox="0 0 24 24"><path d="M4 7h16M9 7V3h6v4M6 7l1 14h10l1-14"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 24"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="export" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M4 15v6h16v-6"/></symbol>
+  <symbol id="import" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 15v6h16v-6"/></symbol>
+  <symbol id="backup" viewBox="0 0 24 24"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></symbol>
+  <symbol id="calendar" viewBox="0 0 24 24"><path d="M3 5h18v16H3zM3 10h18M8 2v5M16 2v5"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
+  <symbol id="close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+  <symbol id="drag" viewBox="0 0 24 24"><path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01"/></symbol>
+  <symbol id="more" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01"/></symbol>
+  <symbol id="arrow-right" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+  <symbol id="chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="sort" viewBox="0 0 24 24"><path d="M12 21V4M5 11l7-7 7 7"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1 1M18 18l1 1M19 5l-1 1M6 18l-1 1"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M20 15A9 9 0 1 1 9 4a7 7 0 0 0 11 11z"/></symbol>
+  <symbol id="menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+  <symbol id="undo" viewBox="0 0 24 24"><path d="M4 9h11a5 5 0 0 1 0 10H9M8 5L4 9l4 4"/></symbol>
+  <symbol id="warn" viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></symbol>
+  <symbol id="logout" viewBox="0 0 24 24"><path d="M14 3H4v18h10M10 12h11M17 8l4 4-4 4"/></symbol>
+</svg>

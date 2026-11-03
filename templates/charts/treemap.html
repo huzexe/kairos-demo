@@ -1,0 +1,3 @@
+{% if has_data %}<div class="treemap" role="list" aria-label="{{ label }}">
+  {% for t in tiles %}<a role="listitem" class="treemap-tile{% if forloop.first %} is-top{% elif forloop.counter == 2 %} is-second{% endif %}" href="{{ t.url }}" style="--x:{{ t.x }};--y:{{ t.y }};--w:{{ t.w }};--h:{{ t.h }}" data-tip="{{ t.label }}&#10;{{ t.text }}&#10;{{ t.share }}% of income"><b dir="auto">{{ t.label }}</b><span>{{ t.text }} · {{ t.share }}%</span></a>{% endfor %}
+</div>{% else %}{% include "charts/_empty.html" %}{% endif %}

@@ -5,23 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Sign in{% endblock %} · Kairos</title>
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
-  <link rel="stylesheet" href="{% static 'css/kairos.css' %}">
+  <script src="{% static 'js/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}"><link rel="stylesheet" href="{% static 'css/base.css' %}"><link rel="stylesheet" href="{% static 'css/layout.css' %}"><link rel="stylesheet" href="{% static 'css/components.css' %}"><link rel="stylesheet" href="{% static 'css/pages/screens.css' %}">
 </head>
 <body>
-{% include "includes/icons.html" %}
 <div class="auth">
   <section class="auth-side">
-    <div class="brand">{% include "includes/logo.html" %}<span class="brand-name">Kairos</span></div>
-    <div>
-      <h2>Every lead and client your agency handles, in one calm place.</h2>
-      <p>Built for marketing agencies: from the first DM to the signed deal.</p>
-      <ul class="auth-points">
-        <li><svg class="icon"><use href="#i-check-circle"/></svg> Pipeline built around discovery calls and proposals</li>
-        <li><svg class="icon"><use href="#i-check-circle"/></svg> Junk leads filtered out in one click</li>
-        <li><svg class="icon"><use href="#i-check-circle"/></svg> Runs on your own computer — your data stays with you</li>
-      </ul>
-    </div>
-    <p class="auth-foot">Kairos, for marketing agencies.</p>
+    <div class="auth-word">Kairos</div>
+    <p class="auth-line">Your clients. Your computer. Your data.</p>
   </section>
   <main class="auth-main"><div class="auth-box">{% block content %}{% endblock %}</div></main>
 </div>

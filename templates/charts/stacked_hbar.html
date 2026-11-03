@@ -1,0 +1,4 @@
+{% if has_data %}<figure class="chart" aria-label="{{ label }}">
+  <div class="stack-bar" aria-hidden="true">{% for p in parts %}<span class="seg-{{ p.tone }}" style="flex:{{ p.pct }}" data-tip="{{ p.label }}: {{ p.text }}"></span>{% endfor %}</div>
+  <ul class="stack-list">{% for p in parts %}<li class="seg-{{ p.tone }}"><i aria-hidden="true"></i>{{ p.label }}<b>{{ p.text }}</b></li>{% endfor %}</ul>
+</figure>{% else %}{% include "charts/_empty.html" %}{% endif %}

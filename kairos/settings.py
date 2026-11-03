@@ -82,6 +82,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.core.context_processors.agency",
                 "apps.activity.context_processors.follow_up_counts",
+                "apps.dashboard.context_processors.shell",
             ],
         },
     },

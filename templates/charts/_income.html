@@ -1,9 +1,0 @@
-{# Biggest monthly fees per currency, one panel shown at a time. #}
-{% for p in income_panels %}
-<div data-currency-panel="{{ p.code }}"{% if not forloop.first %} hidden{% endif %}>
-  <ul class="rank rank-wide">
-    {% for r in p.rows %}<li data-tip="{{ r.label }}: {{ r.share }}% of {{ p.total }} a month"><a class="rank-label" href="{{ r.url }}">{{ r.label }}</a><span class="rank-track"><span class="rank-bar" style="width:{{ r.pct }}%"></span></span><span class="rank-value">{{ r.text }}</span></li>{% endfor %}
-  </ul>
-  {% if p.note %}<p class="chart-note">{{ p.note }}</p>{% endif %}
-</div>
-{% empty %}<p class="timeline-empty muted">Set a monthly fee on your clients to see this.</p>{% endfor %}

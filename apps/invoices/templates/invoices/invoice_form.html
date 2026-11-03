@@ -1,58 +1,62 @@
 {% extends "base.html" %}
 {% load static kairos %}
 {% block title %}{% if is_new %}New invoice{% else %}Edit {{ invoice.number }}{% endif %}{% endblock %}
-{% block crumb %}<span class="crumb"><a href="{% url 'invoices:list' %}">Invoices</a>{% if invoice %} / <a href="{{ invoice.get_absolute_url }}">{{ invoice.number }}</a>{% endif %}</span>{% endblock %}
-{% block heading %}{% if is_new %}New invoice <span class="muted heading-note">{{ next_number }}</span>{% else %}Edit {{ invoice.number }}{% endif %}{% endblock %}
+{% block crumb %}<a href="{% url 'invoices:list' %}">Invoices</a>{% if invoice %} / <a href="{{ invoice.get_absolute_url }}">{{ invoice.number }}</a>{% endif %}{% endblock %}
+{% block heading %}{% if is_new %}New invoice{% else %}Edit {{ invoice.number }}{% endif %}{% endblock %}
 {% block content %}
-<form method="post" class="card" style="max-width:960px" novalidate>
+<form method="post" novalidate>
   {% csrf_token %}
-  <div class="card-body">
-    {% include "includes/form_errors.html" %}
-    <div class="form-grid form-grid-3">
-      {% if form.client %}{% include "includes/field.html" with field=form.client %}{% else %}
-      <div class="field"><span class="label">Client</span><div class="static-value">{{ invoice.client.company }}</div></div>{% endif %}
-      {% include "includes/field.html" with field=form.issue_date %}
-      {% include "includes/field.html" with field=form.due_date %}
-    </div>
-
-    <h3 class="form-section">Lines <span class="muted heading-note" data-currency-label>{% if invoice %}in {{ invoice.currency }}{% endif %}</span></h3>
-    {{ lines.management_form }}
-    {% if lines.non_form_errors %}<div class="form-errors">{% for e in lines.non_form_errors %}{{ e }} {% endfor %}</div>{% endif %}
-    <div class="rows lines" data-rows="lines">
-      <div class="line-head" aria-hidden="true"><span>Description</span><span>Qty</span><span>Price</span><span class="r">Amount</span><span></span></div>
-      {% for f in lines %}
-      <div class="row-line line-row" data-row>
-        {{ f.id }}
-        <div class="field">{{ f.description }}{% for e in f.description.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
-        <div class="field">{{ f.quantity }}{% for e in f.quantity.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
-        <div class="field">{{ f.unit_price }}{% for e in f.unit_price.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
-        <div class="line-amount" data-amount>—</div>
-        <label class="row-remove" title="Remove line">{{ f.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove line</span></label>
+  <div class="invoice-editor">
+    <div class="stack stack-24">
+      {% include "includes/form_errors.html" %}
+      <div class="form-grid form-grid-3">
+        {% if form.client %}{% include "includes/field.html" with field=form.client %}{% else %}
+        <div class="field"><span class="field-label">Client</span><div class="static-value" dir="auto">{{ invoice.client.company }}</div></div>{% endif %}
+        {% include "includes/field.html" with field=form.issue_date %}
+        {% include "includes/field.html" with field=form.due_date %}
       </div>
-      {% endfor %}
-    </div>
-    <template id="lines-template">
-      <div class="row-line line-row" data-row>
-        {{ lines.empty_form.id }}
-        <div class="field">{{ lines.empty_form.description }}</div>
-        <div class="field">{{ lines.empty_form.quantity }}</div>
-        <div class="field">{{ lines.empty_form.unit_price }}</div>
-        <div class="line-amount" data-amount>—</div>
-        <label class="row-remove" title="Remove line">{{ lines.empty_form.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove line</span></label>
+      <div>
+        <h2 class="side-title">Lines <span class="mono small muted" data-currency-label>{% if invoice %}in {{ invoice.currency }}{% endif %}</span></h2>
+        {{ lines.management_form }}
+        {% if lines.non_form_errors %}<div class="form-errors">{% for e in lines.non_form_errors %}{{ e }} {% endfor %}</div>{% endif %}
+        <div class="rows" data-rows="lines">
+          <div class="line-head" aria-hidden="true"><span>Description</span><span>Qty</span><span>Price</span><span class="r">Amount</span><span></span></div>
+          {% for f in lines %}
+          <div class="line-row" data-row>
+            {{ f.id }}
+            <div class="field">{{ f.description }}{% for e in f.description.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+            <div class="field">{{ f.quantity }}{% for e in f.quantity.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+            <div class="field">{{ f.unit_price }}{% for e in f.unit_price.errors %}<ul class="errors"><li>{{ e }}</li></ul>{% endfor %}</div>
+            <div class="line-amount mono" data-amount>—</div>
+            <label class="row-remove" title="Remove line">{{ f.DELETE }}{% icon "junk" "16" %}<span class="sr-only">Remove line</span></label>
+          </div>
+          {% endfor %}
+        </div>
+        <template id="lines-template">
+          <div class="line-row" data-row>
+            {{ lines.empty_form.id }}
+            <div class="field">{{ lines.empty_form.description }}</div>
+            <div class="field">{{ lines.empty_form.quantity }}</div>
+            <div class="field">{{ lines.empty_form.unit_price }}</div>
+            <div class="line-amount mono" data-amount>—</div>
+            <label class="row-remove" title="Remove line">{{ lines.empty_form.DELETE }}{% icon "junk" "16" %}<span class="sr-only">Remove line</span></label>
+          </div>
+        </template>
+        <button class="btn btn-sm" type="button" data-add-row="lines" style="margin-top:var(--s-8)">{% icon "plus" "16" %}Add line</button>
+        <p class="caption" style="margin-top:var(--s-8)">Tip: add paid ads management as its own line. It isn’t part of the package.</p>
       </div>
-    </template>
-    <div class="lines-foot">
-      <button class="btn btn-sm" type="button" data-add-row="lines"><svg class="icon"><use href="#i-plus"/></svg> Add line</button>
-      <div class="lines-total">Total <strong data-total>—</strong></div>
+      {% include "includes/field.html" with field=form.notes %}
+      {% if not features.tax_and_payments %}{% include "includes/locked.html" with name="GST, partial payments and reminders" text="Add tax to an invoice, record part payments and send payment reminders." %}{% endif %}
     </div>
-    <p class="muted" style="font-size:12.5px;margin:8px 0 0">Tip: add paid ads management as its own line — it isn’t part of the package.</p>
-
-    <div class="form-grid" style="margin-top:18px">{% include "includes/field.html" with field=form.notes span=1 %}</div>
-  </div>
-  <div class="form-actions">
-    <a class="btn btn-ghost" href="{% if invoice %}{{ invoice.get_absolute_url }}{% else %}{% url 'invoices:list' %}{% endif %}">Cancel</a>
-    <span class="spacer"></span>
-    <button class="btn btn-primary" type="submit">{% if is_new %}Create invoice{% else %}Save changes{% endif %}</button>
+    <aside class="totals-panel">
+      <div class="section-label">Receipt</div>
+      <dl class="receipt">
+        <div class="receipt-row"><dt>Invoice</dt><dd>{% if is_new %}{{ next_number }}{% else %}{{ invoice.number }}{% endif %}</dd></div>
+        <div class="receipt-row receipt-total"><dt>Total</dt><dd data-total>—</dd></div>
+      </dl>
+      <button class="btn btn-primary btn-block" type="submit">{% if is_new %}Create invoice{% else %}Save changes{% endif %}</button>
+      <a class="btn btn-ghost btn-block" href="{% if invoice %}{{ invoice.get_absolute_url }}{% else %}{% url 'invoices:list' %}{% endif %}">Cancel</a>
+    </aside>
   </div>
 </form>
 {% endblock %}

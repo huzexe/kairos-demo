@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load kairos %}
+{% block title %}Timeline{% endblock %}
+{% block heading %}Timeline{% endblock %}
+{% block summary %}{{ page.paginator.count }} entr{{ page.paginator.count|pluralize:"y,ies" }}{% endblock %}
+{% block content %}
+<form class="toolbar" method="get">
+  <div class="field"><label class="field-label" for="f-kind">Type</label><select id="f-kind" name="kind" data-autosubmit><option value="">All types</option>{% for v, l in kinds %}<option value="{{ v }}"{% if kind == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="field"><label class="field-label" for="f-channel">Channel</label><select id="f-channel" name="channel" data-autosubmit><option value="">All channels</option>{% for v, l in channels %}<option value="{{ v }}"{% if channel == v %} selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="field"><label class="field-label" for="f-from">From</label><input id="f-from" type="date" name="from" value="{{ since|date:'Y-m-d' }}" data-autosubmit></div>
+  <div class="field"><label class="field-label" for="f-to">To</label><input id="f-to" type="date" name="to" value="{{ until|date:'Y-m-d' }}" data-autosubmit></div>
+  <noscript><button class="btn" type="submit">Apply</button></noscript>
+</form>
+<div class="after-toolbar narrow">
+  {% if page.object_list %}<ol class="tl">{% for a in page.object_list %}{% include "activity/_entry.html" with subject_link=True %}{% endfor %}</ol>{% include "includes/pagination.html" %}
+  {% else %}<div class="empty">{% icon "timeline" "24" %}<h2 class="panel-title">Nothing logged here</h2><p class="muted">Log calls, meetings, messages and notes from any lead or client page.</p><a class="btn" href="{% url 'pipeline:board' %}">Go to the pipeline</a></div>{% endif %}
+</div>
+{% endblock %}

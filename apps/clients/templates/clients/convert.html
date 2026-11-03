@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load kairos %}
 {% block title %}Convert {{ lead.display_title }} to a client{% endblock %}
-{% block crumb %}<span class="crumb"><a href="{% url 'pipeline:board' %}">Pipeline</a> / <a href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a></span>{% endblock %}
+{% block crumb %}<a href="{% url 'pipeline:board' %}">Pipeline</a> / <a href="{{ lead.get_absolute_url }}">{{ lead.display_title }}</a>{% endblock %}
 {% block heading %}Convert to client{% endblock %}
 {% block content %}
 <form method="post" class="card" style="max-width:860px" novalidate>
@@ -19,7 +20,7 @@
   <div class="form-actions">
     <a class="btn btn-ghost" href="{{ lead.get_absolute_url }}">Cancel</a>
     <span class="spacer"></span>
-    <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-star"/></svg> Create client</button>
+    <button class="btn btn-primary" type="submit">{% icon "arrow-right" "16" %} Create client</button>
   </div>
 </form>
 {% endblock %}

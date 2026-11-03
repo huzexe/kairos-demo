@@ -14,10 +14,10 @@
       <span class="uses">{{ uses|default:0 }} lead{{ uses|default:0|pluralize }}</span>
       <form method="post" class="actions">
         {% csrf_token %}<input type="hidden" name="id" value="{{ item.pk }}">
-        <button class="btn btn-ghost btn-sm btn-icon" name="action" value="up" title="Move up" aria-label="Move {{ item.name }} up"{% if forloop.first %} disabled{% endif %}><svg class="icon"><use href="#i-up"/></svg></button>
-        <button class="btn btn-ghost btn-sm btn-icon" name="action" value="down" title="Move down" aria-label="Move {{ item.name }} down"{% if forloop.last %} disabled{% endif %}><svg class="icon"><use href="#i-down"/></svg></button>
-        <button class="btn btn-ghost btn-sm btn-icon" name="action" value="toggle" title="{% if item.is_active %}Hide{% else %}Show{% endif %}" aria-label="{% if item.is_active %}Hide{% else %}Show{% endif %} {{ item.name }}"><svg class="icon"><use href="#i-{% if item.is_active %}eye{% else %}eye-off{% endif %}"/></svg></button>
-        <button class="btn btn-ghost btn-sm btn-icon btn-danger" name="action" value="delete" title="Delete" aria-label="Delete {{ item.name }}" data-confirm="Delete “{{ item.name }}”?"><svg class="icon"><use href="#i-trash"/></svg></button>
+        <button class="btn btn-ghost btn-sm btn-icon" name="action" value="up" title="Move up" aria-label="Move {{ item.name }} up"{% if forloop.first %} disabled{% endif %}>{% icon "sort" "16" %}</button>
+        <button class="btn btn-ghost btn-sm btn-icon" name="action" value="down" title="Move down" aria-label="Move {{ item.name }} down"{% if forloop.last %} disabled{% endif %}>{% icon "chevron" "16" %}</button>
+        <button class="btn btn-ghost btn-sm" name="action" value="toggle" title="{% if item.is_active %}Hide{% else %}Show{% endif %}" aria-label="{% if item.is_active %}Hide{% else %}Show{% endif %} {{ item.name }}">{% if item.is_active %}Hide{% else %}Show{% endif %}</button>
+        <button class="btn btn-ghost btn-sm btn-icon btn-danger" name="action" value="delete" title="Delete" aria-label="Delete {{ item.name }}" data-confirm="Delete “{{ item.name }}”?">{% icon "junk" "16" %}</button>
       </form>
     </li>
     {% endwith %}
@@ -28,10 +28,10 @@
   <form method="post" class="add-row" novalidate>
     {% csrf_token %}<input type="hidden" name="action" value="add">
     <div class="field" style="flex:1">
-      <input type="text" name="add-name" maxlength="60" placeholder="Add a {{ conf.item }}…" aria-label="New {{ conf.item }}" value="{{ add_form.name.value|default:'' }}">
+      <input class="input" type="text" name="add-name" maxlength="60" placeholder="Add a {{ conf.item }}…" aria-label="New {{ conf.item }}" value="{{ add_form.name.value|default:'' }}">
       {% if add_form.errors.name %}<ul class="errors">{% for e in add_form.errors.name %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
     </div>
-    <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-plus"/></svg> Add</button>
+    <button class="btn btn-primary" type="submit">{% icon "plus" "16" %} Add</button>
   </form>
 </section>
 <p class="muted" style="margin-top:12px;font-size:13px">Click a name to rename it, then press Enter. Hidden {{ conf.item }}s stay on old leads but can’t be picked for new ones. Items in use can’t be deleted — hide them instead.</p>

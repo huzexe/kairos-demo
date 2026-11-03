@@ -9,9 +9,12 @@ from apps.pipeline import views as pipeline_views
 urlpatterns = [
     path("", dashboard_views.dashboard, name="home"),
     path("setup/", core_views.setup, name="setup"),
+    path("_styleguide/", core_views.styleguide, name="styleguide"),
     path("login/", auth_views.LoginView.as_view(redirect_authenticated_user=True), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("settings/", core_views.settings_agency, name="settings_agency"),
+    path("insights/", dashboard_views.insights_page, name="insights"),
+    path("settings/appearance/", core_views.settings_appearance, name="settings_appearance"),
     path("settings/account/", core_views.settings_account, name="settings_account"),
     path("settings/invoices/", core_views.settings_invoices, name="settings_invoices"),
     path("settings/<slug:kind>/", pipeline_views.settings_list, name="settings_list"),

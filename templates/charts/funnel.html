@@ -1,0 +1,11 @@
+{% if has_data %}<figure class="chart" aria-label="{{ label }}">
+  <div class="funnel-chart" style="--stages:{{ stages }}">
+    {% for r in rows %}<div class="funnel-step stage-{{ r.key }}{% if r.is_worst %} is-worst{% if accent %} is-accent{% endif %}{% endif %}" data-tip="{{ r.label }}: {{ r.count }} lead{{ r.count|pluralize }}" tabindex="0">
+      <span class="funnel-drop">{% if r.drop is not None %}−{{ r.drop }}%{% endif %}</span>
+      <span class="funnel-name">{{ r.label }}</span>
+      <span class="funnel-count">{{ r.count }}</span>
+      <div class="funnel-well" aria-hidden="true"><div class="funnel-block" style="--h:{{ r.height }}%"></div></div>
+    </div>{% endfor %}
+  </div>
+  {% if note %}<figcaption class="chart-note">{{ note }}</figcaption>{% endif %}
+</figure>{% else %}{% include "charts/_empty.html" %}{% endif %}

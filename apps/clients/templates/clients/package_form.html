@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load kairos %}
 {% load static %}
 {% block title %}{% if package.pk %}Edit {{ package.name }}{% else %}New package{% endif %}{% endblock %}
-{% block crumb %}<span class="crumb"><a href="{% url 'clients:packages' %}">Packages</a></span>{% endblock %}
+{% block crumb %}<a href="{% url 'clients:packages' %}">Packages</a>{% endblock %}
 {% block heading %}{% if package.pk %}{{ package.name }}{% else %}New package{% endif %}{% endblock %}
 {% block content %}
 <form method="post" class="card" style="max-width:860px" novalidate>
@@ -26,7 +27,7 @@
         <div class="field qty">{% if forloop.first %}<label for="{{ f.quantity.id_for_label }}">How many</label>{% endif %}{{ f.quantity }}{% if f.quantity.errors %}<ul class="errors">{% for e in f.quantity.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}</div>
         <div class="field">{% if forloop.first %}<label for="{{ f.kind.id_for_label }}">Type</label>{% endif %}{{ f.kind }}</div>
         <div class="field" data-custom>{% if forloop.first %}<label for="{{ f.custom_label.id_for_label }}">Name (for Other)</label>{% endif %}{{ f.custom_label }}{% if f.custom_label.errors %}<ul class="errors">{% for e in f.custom_label.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}</div>
-        <label class="row-remove" title="Remove">{{ f.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove</span></label>
+        <label class="row-remove" title="Remove">{{ f.DELETE }}{% icon "junk" "16" %}<span class="sr-only">Remove</span></label>
       </div>
       {% endfor %}
     </div>
@@ -36,10 +37,10 @@
         <div class="field qty">{{ items.empty_form.quantity }}</div>
         <div class="field">{{ items.empty_form.kind }}</div>
         <div class="field" data-custom>{{ items.empty_form.custom_label }}</div>
-        <label class="row-remove" title="Remove">{{ items.empty_form.DELETE }}<svg class="icon"><use href="#i-trash"/></svg><span class="sr-only">Remove</span></label>
+        <label class="row-remove" title="Remove">{{ items.empty_form.DELETE }}{% icon "junk" "16" %}<span class="sr-only">Remove</span></label>
       </div>
     </template>
-    <button class="btn btn-sm" type="button" data-add-row="items"><svg class="icon"><use href="#i-plus"/></svg> Add a deliverable</button>
+    <button class="btn btn-sm" type="button" data-add-row="items">{% icon "plus" "16" %} Add a deliverable</button>
   </div>
   <div class="form-actions">
     {% if package.pk %}<button class="btn btn-danger" type="submit" form="delete-package" data-confirm="Delete the {{ package.name }} package?">Delete</button>{% endif %}

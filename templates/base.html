@@ -5,65 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Kairos{% endblock %} · Kairos</title>
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
-  <link rel="stylesheet" href="{% static 'css/kairos.css' %}">
+  <script src="{% static 'js/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/charts.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/screens.css' %}">
   {% block head %}{% endblock %}
 </head>
-<body>
-{% include "includes/icons.html" %}
-<div class="app" id="app">
-  <aside class="sidebar" id="sidebar" aria-label="Main menu">
-    <a class="brand" href="{% url 'home' %}" title="Kairos · {{ agency.name }}" aria-label="Kairos, dashboard">
-      {% include "includes/logo.html" %}
-    </a>
-    <nav class="nav">
-      <a href="{% url 'home' %}" title="Dashboard" class="{% if request.path == '/' %}is-active{% endif %}">
-        <svg class="icon"><use href="#i-home"/></svg><span class="nav-text">Home</span>
+<body data-new-lead="{% url 'pipeline:lead_create' %}">
+<a class="skip-link" href="#main">Skip to main content</a>
+<div class="statusline" role="group" aria-label="Today at a glance">
+  <span>{{ shell.today|date:"D d M Y" }}</span>
+  <a href="{% url 'activity:follow_ups' %}">Follow-ups today: {{ shell.due_today }}</a>
+  <a class="statusline-hide-sm" href="{% url 'invoices:list' %}?status=overdue">Overdue invoices: {{ shell.overdue_invoices }}</a>
+  <a class="statusline-hide-sm" href="{% url 'pipeline:board' %}">Pipeline: {{ shell.pipeline }}</a>
+  <span class="statusline-local statusline-hide-sm">Data stored locally <span class="dot" aria-hidden="true"></span></span>
+</div>
+
+<div class="shell">
+  <aside class="rail" aria-label="Main menu">
+    <div class="rail-head">
+      <a class="wordmark" href="{% url 'home' %}" aria-label="Kairos, Today">
+        {% if agency.logo %}<img src="{{ agency.logo.url }}" alt="">{% endif %}
+        <span class="wordmark-text">Kairos</span>
       </a>
-      <div class="nav-label">Sales</div>
-      <a href="{% url 'pipeline:board' %}" title="Pipeline" class="{% nav_active '/pipeline/' %}">
-        <svg class="icon"><use href="#i-kanban"/></svg><span class="nav-text">Pipeline</span>
-      </a>
-      <a href="{% url 'activity:follow_ups' %}" title="Follow-ups" class="{% nav_active '/activity/follow-ups/' %}">
-        <svg class="icon"><use href="#i-bell"/></svg><span class="nav-text">Follow-ups</span>
-        {% if follow_ups_due %}<span class="count count-alert" title="Due today or overdue">{{ follow_ups_due }}</span>{% endif %}
-      </a>
-      <div class="nav-label">Clients</div>
-      <a href="{% url 'clients:list' %}" title="Clients" class="{% if request.path|slice:':9' == '/clients/' and '/clients/packages/' not in request.path %}is-active{% endif %}">
-        <svg class="icon"><use href="#i-users"/></svg><span class="nav-text">Clients</span>
-      </a>
-      <a href="{% url 'invoices:list' %}" title="Invoices" class="{% nav_active '/invoices/' %}">
-        <svg class="icon"><use href="#i-receipt"/></svg><span class="nav-text">Invoices</span>
-      </a>
-      <a href="{% url 'clients:packages' %}" title="Packages" class="{% nav_active '/clients/packages/' %}">
-        <svg class="icon"><use href="#i-package"/></svg><span class="nav-text">Packages</span>
-      </a>
-      <div class="nav-label">Workspace</div>
-      <a href="{% url 'settings_agency' %}" title="Settings" class="{% nav_active '/settings/' %}">
-        <svg class="icon"><use href="#i-settings"/></svg><span class="nav-text">Settings</span>
-      </a>
+      <button class="rail-toggle" type="button" data-rail-toggle aria-label="Collapse the menu" aria-expanded="true">{% icon "arrow-right" "16" %}</button>
+    </div>
+    <nav aria-label="Sections">
+      <div class="rail-group">
+        <span class="rail-group-title">Today</span>
+        <a class="rail-item {% if shell.section.key == 'today' %}is-active{% endif %}" href="{% url 'home' %}" title="Dashboard">{% icon "dashboard" %}<span class="rail-text">Dashboard</span><kbd>g d</kbd></a>
+        <a class="rail-item {% if shell.section.key == 'follow-ups' %}is-active{% endif %}" href="{% url 'activity:follow_ups' %}" title="Follow-ups">{% icon "follow-up" %}<span class="rail-text">Follow-ups</span>{% if follow_ups_due %}<span class="rail-count">{{ follow_ups_due }}</span>{% endif %}<kbd>g f</kbd></a>
+      </div>
+      <div class="rail-group">
+        <span class="rail-group-title">Work</span>
+        <a class="rail-item {% if shell.section.key == 'pipeline' %}is-active{% endif %}" href="{% url 'pipeline:board' %}" title="Pipeline">{% icon "pipeline" %}<span class="rail-text">Pipeline</span><kbd>g p</kbd></a>
+        <a class="rail-item {% if shell.section.key == 'clients' %}is-active{% endif %}" href="{% url 'clients:list' %}" title="Clients">{% icon "clients" %}<span class="rail-text">Clients</span><kbd>g c</kbd></a>
+        <a class="rail-item {% if shell.section.key == 'packages' %}is-active{% endif %}" href="{% url 'clients:packages' %}" title="Packages">{% icon "packages" %}<span class="rail-text">Packages</span></a>
+        <a class="rail-item {% if shell.section.key == 'timeline' %}is-active{% endif %}" href="{% url 'activity:timeline' %}" title="Timeline">{% icon "timeline" %}<span class="rail-text">Timeline</span></a>
+      </div>
+      <div class="rail-group">
+        <span class="rail-group-title">Money</span>
+        <a class="rail-item {% if shell.section.key == 'invoices' %}is-active{% endif %}" href="{% url 'invoices:list' %}" title="Invoices">{% icon "invoice" %}<span class="rail-text">Invoices</span><kbd>g i</kbd></a>
+        <a class="rail-item {% if shell.section.key == 'insights' %}is-active{% endif %}" href="{% url 'insights' %}" title="Insights">{% icon "insights" %}<span class="rail-text">Insights</span></a>
+      </div>
     </nav>
-    <div class="sidebar-foot">
-      <a class="avatar{% if agency.logo %} has-logo{% endif %}" href="{% url 'settings_agency' %}" title="{{ user.get_full_name|default:user.username }} · Agency profile" aria-label="Agency profile">{% if agency.logo %}<img src="{{ agency.logo.url }}" alt="">{% else %}{{ user.get_short_name|default:user.username|first|upper }}{% endif %}</a>
-      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
-        <button class="rail-out" type="submit" title="Sign out" aria-label="Sign out"><svg class="icon"><use href="#i-logout"/></svg></button>
-      </form>
+    <div class="rail-foot">
+      <a class="rail-item {% if shell.section.key == 'settings' %}is-active{% endif %}" style="flex:1" href="{% url 'settings_agency' %}" title="Settings">{% icon "settings" %}<span class="rail-text">Settings</span></a>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" title="Sign out" aria-label="Sign out">{% icon "logout" %}</button></form>
     </div>
   </aside>
-  <div class="scrim" data-close-nav></div>
 
-  <div class="main">
-    <header class="topbar" id="topbar">
-      <button class="btn btn-ghost btn-icon menu-btn" type="button" data-open-nav aria-label="Open menu"><svg class="icon"><use href="#i-menu"/></svg></button>
-      <h1>{% block crumb %}{% endblock %}{% block heading %}{% endblock %}</h1>
-      <div class="topbar-actions">{% block actions %}{% endblock %}</div>
+  <div class="shell-main">
+    <header class="topnav" id="topbar">
+      <a class="topnav-brand" href="{% url 'home' %}">Kairos</a>
+      <nav class="breadcrumb" aria-label="Breadcrumb">{% block crumb %}{{ agency.name }}{% endblock %}</nav>
+      <button class="topnav-search" type="button" data-open="palette" aria-label="Search">{% icon "search" "16" %}<span>Search leads, clients, invoices</span><kbd>Ctrl K</kbd></button>
+      <details class="split" data-menu>
+        <summary class="btn" aria-label="Add new">{% icon "plus" "16" %}New {% icon "chevron" "16" %}</summary>
+        <div class="menu">
+          <a href="{% url 'pipeline:lead_create' %}">{% icon "pipeline" "16" %}Lead</a>
+          <a href="{% url 'clients:create' %}">{% icon "clients" "16" %}Client</a>
+          <a href="{% url 'invoices:create' %}">{% icon "invoice" "16" %}Invoice</a>
+        </div>
+      </details>
+      {% if shell.overdue_invoices %}<a class="overdue-badge" href="{% url 'invoices:list' %}?status=overdue" title="{{ shell.overdue_invoices }} overdue invoice{{ shell.overdue_invoices|pluralize }}" aria-label="{{ shell.overdue_invoices }} overdue invoice{{ shell.overdue_invoices|pluralize }}">{% icon "warn" "16" %}{{ shell.overdue_invoices }}<span> overdue</span></a>{% endif %}
+      <button class="btn btn-ghost btn-icon" type="button" data-theme-toggle aria-label="Switch between light and night shift">{% icon "moon" %}</button>
     </header>
-    <main class="content{% block content_class %}{% endblock %}">
+
+    <header class="block-header band-{{ shell.section.band }}{% block band_class %}{% endblock %}">
+      <div class="block-page">
+        <div class="block-header-inner">
+          <h1 dir="auto">{% block heading %}{% endblock %}</h1>
+          <span class="block-number">/{{ shell.section.number }}</span>
+          <p class="block-summary">{% block summary %}{{ shell.summary }}{% endblock %}</p>
+        </div>
+        <div class="block-actions">{% block actions %}{% endblock %}</div>
+      </div>
+    </header>
+
+    <main class="content{% block content_class %}{% endblock %}" id="main" tabindex="-1">
       {% block content %}{% endblock %}
     </main>
   </div>
 </div>
+
+<a class="fab" href="{% url 'pipeline:lead_create' %}" aria-label="New lead">{% icon "plus" "24" %}</a>
+<nav class="tabbar" aria-label="Main">
+  <a class="{% if shell.section.key == 'today' or shell.section.key == 'follow-ups' %}is-active{% endif %}" href="{% url 'home' %}">{% icon "dashboard" %}Today</a>
+  <a class="{% if shell.section.key == 'pipeline' %}is-active{% endif %}" href="{% url 'pipeline:board' %}">{% icon "pipeline" %}Pipeline</a>
+  <a class="{% if shell.section.key == 'clients' or shell.section.key == 'packages' %}is-active{% endif %}" href="{% url 'clients:list' %}">{% icon "clients" %}Clients</a>
+  <a class="{% if shell.section.key == 'invoices' %}is-active{% endif %}" href="{% url 'invoices:list' %}">{% icon "invoice" %}Invoices</a>
+  <button type="button" class="{% if shell.section.key == 'settings' %}is-active{% endif %}" data-open="more-menu">{% icon "more" %}More</button>
+</nav>
+
+<dialog class="more-sheet" id="more-menu" aria-label="More">
+  <div class="dialog-head"><h3>More</h3><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="Close">{% icon "close" %}</button></div>
+  <div class="menu-list">
+    <a href="{% url 'activity:follow_ups' %}">{% icon "follow-up" %}Follow-ups</a>
+    <a href="{% url 'clients:packages' %}">{% icon "packages" %}Packages</a>
+    <a href="{% url 'activity:timeline' %}">{% icon "timeline" %}Timeline</a>
+    <a href="{% url 'insights' %}">{% icon "insights" %}Insights</a>
+    <a href="{% url 'settings_agency' %}">{% icon "settings" %}Settings</a>
+  </div>
+</dialog>
+
+<dialog class="palette" id="palette" aria-label="Search">
+  <div class="dialog-head"><h2 class="section-label">Search</h2><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="Close">{% icon "close" %}</button></div>
+  {% if not features.global_search %}{% include "includes/locked.html" with name="Global search" text="Finds any lead, client or invoice from anywhere with Ctrl+K." %}{% endif %}
+</dialog>
+
+<dialog class="modal" id="shortcuts" aria-labelledby="shortcuts-title">
+  <div class="dialog-head"><h3 id="shortcuts-title">Keyboard shortcuts</h3><button class="btn btn-ghost btn-icon" type="button" data-close aria-label="Close">{% icon "close" %}</button></div>
+  <div class="dialog-body"><dl class="shortcuts">
+    <dt>g d</dt><dd>Dashboard</dd><dt>g p</dt><dd>Pipeline</dd><dt>g c</dt><dd>Clients</dd><dt>g i</dt><dd>Invoices</dd><dt>g f</dt><dd>Follow-ups</dd>
+    <dt>n</dt><dd>New lead</dd><dt>/</dt><dd>Search this page</dd><dt>?</dt><dd>This list</dd>
+  </dl></div>
+</dialog>
+
 {% include "includes/messages.html" %}
 <script src="{% static 'js/kairos.js' %}"></script>
+<script src="{% static 'js/poster.js' %}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,16 @@
+{% extends "core/settings_base.html" %}
+{% block settings %}
+<section class="card">
+  <div class="card-head"><div><h2>Appearance</h2><p>Saved on this computer.</p></div></div>
+  <div class="card-body stack">
+    <span class="field-label">Theme</span>
+    <div class="switch" role="group" aria-label="Theme"><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Night shift</button><button type="button" data-theme-set="system">System</button></div>
+  </div>
+</section>
+<div class="locked-grid" style="margin-top:var(--s-24)">
+  {% if not features.tax_and_payments %}{% include "includes/locked.html" with name="Brand colour" text="Your own colour on invoice PDFs, without the Made with Kairos line." %}{% endif %}
+  {% if not features.backups %}{% include "includes/locked.html" with name="Daily backups" text="Backs up your data every day, ready to restore." %}{% endif %}
+  {% if not features.import_export %}{% include "includes/locked.html" with name="Import and export" text="Bring leads in from other CRMs, and export everything to Excel or CSV." %}{% endif %}
+  {% if not features.desktop_app %}{% include "includes/locked.html" with name="Desktop app" text="Kairos in its own window, with its own icon." %}{% endif %}
+</div>
+{% endblock %}

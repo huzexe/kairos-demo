@@ -1,0 +1,10 @@
+{% if has_data %}<figure class="chart" aria-label="{{ label }}">
+  <div class="heat">
+    <div class="heat-days" aria-hidden="true"><span></span>{% for d in days %}<span>{{ d }}</span>{% endfor %}</div>
+    <div class="heat-weeks">
+      {% for c in columns %}<div class="heat-week"><span class="heat-month" aria-hidden="true">{{ c.month }}</span>{% for cell in c.cells %}<span class="heat-cell lvl-{{ cell.level }}{% if cell.count is None %} is-future{% endif %}{% if cell.today %} is-today{% endif %}"{% if cell.tip %} data-tip="{{ cell.tip }}"{% endif %}></span>{% endfor %}</div>{% endfor %}
+    </div>
+  </div>
+  {% if note %}<figcaption class="chart-note">{{ note }}</figcaption>{% endif %}
+  <div class="sr-only"><table><caption>{{ label }}, contacts per week</caption><tbody>{% for c in columns %}<tr><th scope="row">{{ c.start }}</th><td>{{ c.total }}</td></tr>{% endfor %}</tbody></table></div>
+</figure>{% else %}{% include "charts/_empty.html" %}{% endif %}
