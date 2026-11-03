@@ -41,11 +41,11 @@ addMapping("Naskh", 1, 0, "Naskh-Bold")
 _ARABIC_RUN = re.compile(r"[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+"
                          r"(?:\s+[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+)*")
 
-INK = colors.HexColor("#121826")
-MUTED = colors.HexColor("#6b7486")
-LINE = colors.HexColor("#e3e6eb")
-SOFT = colors.HexColor("#f4f5f7")
-BRAND = colors.HexColor("#0a7d69")
+INK = colors.HexColor("#111111")
+MUTED = colors.HexColor("#676560")
+LINE = colors.HexColor("#E2E0D9")
+SOFT = colors.HexColor("#F6F5F1")
+BRAND = colors.HexColor("#111111")
 
 
 def _style(name, **kw):
@@ -130,7 +130,7 @@ def render_invoice(invoice) -> bytes:
     agency_lines = [line for line in [agency.address, agency.phone, agency.email, agency.website] if line]
     left = [*logo_flowable(agency), _p(agency.name, "agency"), Spacer(1, 3)] + [_p(line, "small") for line in agency_lines]
     status = invoice.status_label.upper()
-    status_hex = "#0f7b4a" if invoice.is_paid else "#c62828" if invoice.is_overdue else "#6b7486"
+    status_hex = "#0B7A53" if invoice.is_paid else "#D7263D" if invoice.is_overdue else "#676560"
     right = [
         _p("INVOICE", "title"),
         Spacer(1, 4),

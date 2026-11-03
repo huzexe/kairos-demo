@@ -240,8 +240,12 @@ def lead_junk(request, pk):
     try:
         services.set_junk(lead, make_junk)
     except ValidationError as exc:
+        if _wants_json(request):
+            return JsonResponse({"ok": False, "error": " ".join(exc.messages)}, status=400)
         messages.error(request, " ".join(exc.messages))
     else:
+        if _wants_json(request):
+            return JsonResponse({"ok": True, "title": lead.display_title})
         messages.success(
             request,
             f"“{lead.display_title}” moved to junk." if make_junk else f"“{lead.display_title}” restored.",

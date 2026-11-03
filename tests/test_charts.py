@@ -246,3 +246,20 @@ def test_error_pages_only_link_stylesheets_that_exist():
         html = (Path(dj.BASE_DIR) / "templates" / name).read_text()
         for href in re.findall(r'href="/static/([^"]+\.css)"', html):
             assert (Path(dj.BASE_DIR) / "static" / href).exists(), href
+
+
+def test_junk_from_the_board_answers_with_json_and_can_be_undone(client_in, make_lead):
+    lead = make_lead("Oops")
+    url = f"/pipeline/leads/{lead.pk}/junk/"
+    res = client_in.post(url, {"junk": "1"}, headers={"Accept": "application/json"})
+    lead.refresh_from_db()
+    assert res.json() == {"ok": True, "title": lead.display_title} and lead.is_junk
+    client_in.post(url, {"junk": "0"}, headers={"Accept": "application/json"})
+    lead.refresh_from_db()
+    assert not lead.is_junk
+
+
+def test_invoice_pdf_uses_graphite_by_default():
+    from apps.invoices.pdf import BRAND
+
+    assert BRAND.hexval().lower().endswith("111111")

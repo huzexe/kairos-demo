@@ -132,6 +132,42 @@
     }
   }
 
+  // Junk from the card: it leaves the board at once, with Undo in the toast.
+  async function setJunk(action, junk) {
+    const data = new FormData();
+    data.set("junk", junk);
+    const res = await fetch(action, {
+      method: "POST",
+      body: data,
+      headers: { "X-CSRFToken": window.kairosCsrf(), Accept: "application/json" },
+      credentials: "same-origin",
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.ok) throw new Error(body.error || "Couldn’t save that. Try again.");
+    return body;
+  }
+  board.addEventListener("submit", async (e) => {
+    const button = e.submitter;
+    if (!button || !button.classList.contains("junk-btn")) return;
+    e.preventDefault();
+    const form = button.closest("form");
+    const card = form.closest(".lead-card");
+    const list = card.parentElement;
+    const next = card.nextElementSibling;
+    try {
+      const body = await setJunk(form.action, "1");
+      card.remove();
+      refreshColumn(list);
+      window.kairosUndoToast(`“${body.title}” moved to junk.`, async () => {
+        await setJunk(form.action, "0");
+        list.insertBefore(card, next && next.isConnected ? next : null);
+        refreshColumn(list);
+      });
+    } catch (err) {
+      window.kairosToast(err.message, "error");
+    }
+  });
+
   // "Move to…": the keyboard and tap alternative to dragging. Lost still asks why.
   board.addEventListener("submit", async (e) => {
     const form = e.target.closest("[data-move-form]");
